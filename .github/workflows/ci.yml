@@ -80,11 +80,11 @@ jobs:
 
       - name: Make target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
-        run: mkdir -p modules/circe/.jvm/target modules/server/.native/target modules/example/.js/target modules/core/.native/target modules/core/.js/target modules/circe/.js/target modules/core/.jvm/target modules/example/.native/target modules/circe/.native/target modules/example/.jvm/target modules/server/.jvm/target modules/server/.js/target project/target
+        run: mkdir -p modules/circe/.jvm/target modules/server/.native/target modules/core/.native/target modules/core/.js/target modules/circe/.js/target modules/core/.jvm/target modules/circe/.native/target modules/server/.jvm/target modules/server/.js/target project/target
 
       - name: Compress target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
-        run: tar cf targets.tar modules/circe/.jvm/target modules/server/.native/target modules/example/.js/target modules/core/.native/target modules/core/.js/target modules/circe/.js/target modules/core/.jvm/target modules/example/.native/target modules/circe/.native/target modules/example/.jvm/target modules/server/.jvm/target modules/server/.js/target project/target
+        run: tar cf targets.tar modules/circe/.jvm/target modules/server/.native/target modules/core/.native/target modules/core/.js/target modules/circe/.js/target modules/core/.jvm/target modules/circe/.native/target modules/server/.jvm/target modules/server/.js/target project/target
 
       - name: Upload target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
