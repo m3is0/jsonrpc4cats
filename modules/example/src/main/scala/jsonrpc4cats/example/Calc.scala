@@ -60,7 +60,7 @@ object Calc {
         F.pure(Right((a / b, a % b)))
     }
 
-  // Define API (uniqeuness of method names is checked at compile time)
+  // Define API (uniqueness of method names is checked at compile time)
 
   def api[F[_]: Applicative] =
     RpcServer
