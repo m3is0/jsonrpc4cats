@@ -69,7 +69,7 @@ object Calc {
       .add(multiply[F])
       .add(divide[F])
 
-  // Handle a request (can be used with any JSON library for which a module exists)
+  // Handle a request (can be used any JSON library for which a module exists)
 
   def handle[F[_]](req: String)(using MonadError[F, Throwable]): F[Option[Json]] =
     api[F].handle[Json](req)
