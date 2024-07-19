@@ -1,7 +1,13 @@
 # jsonrpc4cats
-A typesafe implementation of [JSON-RPC 2.0](https://www.jsonrpc.org/specification) protocol (server only).
+A simple and type-safe implementation of [JSON-RPC 2.0](https://www.jsonrpc.org/specification) protocol (server only).
 
-## Quick example
+## Quick start
+Add the following dependencies to your ```build.sbt```:
+```scala
+libraryDependencies += "io.github.m3is0" %% "jsonrpc4cats" % "<version>"
+```
+
+## Basic example
 ```scala
 package jsonrpc4cats.example
 
