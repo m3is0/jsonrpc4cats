@@ -4,7 +4,10 @@ A simple and type-safe implementation of [JSON-RPC 2.0](https://www.jsonrpc.org/
 ## Quick start
 Add the following dependencies to your ```build.sbt```:
 ```scala
-libraryDependencies += "io.github.m3is0" %% "jsonrpc4cats" % "<version>"
+libraryDependencies ++= Seq(
+  "io.github.m3is0" %% "jsonrpc4cats-circe" % "<version>",
+  "io.github.m3is0" %% "jsonrpc4cats-server" % "<version>"
+)
 ```
 
 ## Basic example
