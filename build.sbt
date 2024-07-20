@@ -9,6 +9,7 @@ ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiHeaderCheck := true
 ThisBuild / tlCiDependencyGraphJob := false
 ThisBuild / githubWorkflowJavaVersions := List(JavaSpec.temurin("21"))
+ThisBuild / sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeCentralHost
 
 ThisBuild / scalaVersion := "3.3.3"
 
