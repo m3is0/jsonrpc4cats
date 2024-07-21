@@ -9,9 +9,12 @@ ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiHeaderCheck := true
 ThisBuild / tlCiDependencyGraphJob := false
 ThisBuild / githubWorkflowJavaVersions := List(JavaSpec.temurin("21"))
-ThisBuild / sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeCentralHost
 
 ThisBuild / scalaVersion := "3.3.3"
+
+val commonSettings = Seq(
+  sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeCentralHost
+)
 
 val MunitV = "1.0.0"
 val CatsV = "2.12.0"
@@ -28,6 +31,7 @@ lazy val root = tlCrossRootProject
 lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/core"))
+  .settings(commonSettings)
   .settings(
     name := "jsonrpc4cats-core",
     libraryDependencies ++= Seq(
@@ -39,6 +43,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
 lazy val server = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/server"))
+  .settings(commonSettings)
   .settings(
     name := "jsonrpc4cats-server",
     libraryDependencies ++= Seq(
@@ -54,6 +59,7 @@ lazy val server = crossProject(JSPlatform, JVMPlatform, NativePlatform)
 lazy val circe = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/circe"))
+  .settings(commonSettings)
   .settings(
     name := "jsonrpc4cats-circe",
     libraryDependencies ++= Seq(
@@ -70,6 +76,7 @@ lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/example"))
   .enablePlugins(NoPublishPlugin)
+  .settings(commonSettings)
   .settings(
     name := "jsonrpc4cats-example",
     libraryDependencies ++= Seq(
