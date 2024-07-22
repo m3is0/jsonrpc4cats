@@ -54,25 +54,13 @@ lazy val root = project
   .in(file("."))
   .settings(NoPublish)
   .aggregate(
-    rootJS,
-    rootJVM
-  )
-
-lazy val rootJS = project
-  .settings(NoPublish)
-  .aggregate(
     core.js,
-    server.js,
-    circe.js,
-    example.js
-  )
-
-lazy val rootJVM = project
-  .settings(NoPublish)
-  .aggregate(
     core.jvm,
+    server.js,
     server.jvm,
+    circe.js,
     circe.jvm,
+    example.js,
     example.jvm
   )
 
