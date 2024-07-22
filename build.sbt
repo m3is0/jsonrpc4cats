@@ -55,8 +55,7 @@ lazy val root = project
   .settings(NoPublish)
   .aggregate(
     rootJS,
-    rootJVM,
-    rootNative
+    rootJVM
   )
 
 lazy val rootJS = project
@@ -77,16 +76,7 @@ lazy val rootJVM = project
     example.jvm
   )
 
-lazy val rootNative = project
-  .settings(NoPublish)
-  .aggregate(
-    core.native,
-    server.native,
-    circe.native,
-    example.native
-  )
-
-lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/core"))
   .settings(
@@ -97,7 +87,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     )
   )
 
-lazy val server = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+lazy val server = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/server"))
   .settings(
@@ -112,7 +102,7 @@ lazy val server = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     circe % "test"
   )
 
-lazy val circe = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+lazy val circe = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/circe"))
   .settings(
@@ -127,7 +117,7 @@ lazy val circe = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     core % "test->test;compile->compile"
   )
 
-lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+lazy val example = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/example"))
   .settings(NoPublish)
