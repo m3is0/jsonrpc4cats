@@ -15,7 +15,7 @@ ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(R
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
     name = Some("Check headers and formatting"),
-    commands = List("headerCheckAll", "scalafmtCheckAll")
+    commands = List("headerCheckAll", "scalafmtCheckAll", "scalafmtSbtCheck")
   ),
   WorkflowStep.Sbt(
     name = Some("Build and test"),
@@ -36,15 +36,6 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
-ThisBuild / githubWorkflowBuildMatrixAdditions := Map(
-  "project" -> List("rootJVM", "rootJS", "rootNative")
-)
-
-ThisBuild / githubWorkflowBuildSbtStepPreamble := Seq(
-  "project ${{ matrix.project }}",
-  "++ ${{ matrix.scala }}"
-)
-
 ThisBuild / sonatypeCredentialHost :=
   xerial.sbt.Sonatype.sonatypeCentralHost
 
@@ -63,35 +54,17 @@ lazy val root = project
   .in(file("."))
   .settings(NoPublish)
   .aggregate(
-    rootJVM,
-    rootJS,
-    rootNative
-  )
-
-lazy val rootJVM = project
-  .settings(NoPublish)
-  .aggregate(
     core.jvm,
-    server.jvm,
-    circe.jvm,
-    example.jvm
-  )
-
-lazy val rootJS = project
-  .settings(NoPublish)
-  .aggregate(
     core.js,
-    server.js,
-    circe.js,
-    example.js
-  )
-
-lazy val rootNative = project
-  .settings(NoPublish)
-  .aggregate(
     core.native,
+    server.jvm,
+    server.js,
     server.native,
+    circe.jvm,
+    circe.js,
     circe.native,
+    example.jvm,
+    example.js,
     example.native
   )
 

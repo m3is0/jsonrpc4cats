@@ -25,7 +25,6 @@ jobs:
         os: [ubuntu-latest]
         scala: [3.3.3]
         java: [temurin@21]
-        project: [rootJVM, rootJS, rootNative]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
@@ -45,16 +44,16 @@ jobs:
         uses: sbt/setup-sbt@v1
 
       - name: Check that workflows are up to date
-        run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' githubWorkflowCheck
+        run: sbt '++ ${{ matrix.scala }}' githubWorkflowCheck
 
       - name: Check headers and formatting
-        run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' headerCheckAll scalafmtCheckAll
+        run: sbt '++ ${{ matrix.scala }}' headerCheckAll scalafmtCheckAll scalafmtSbtCheck
 
       - name: Build and test
-        run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' test
+        run: sbt '++ ${{ matrix.scala }}' test
 
       - name: Compress target directories
-        run: tar cf targets.tar modules/circe/.jvm/target target modules/server/.native/target modules/example/.js/target rootJS/target modules/core/.native/target modules/core/.js/target modules/circe/.js/target modules/core/.jvm/target rootJVM/target rootNative/target modules/example/.native/target modules/circe/.native/target modules/example/.jvm/target modules/server/.jvm/target modules/server/.js/target project/target
+        run: tar cf targets.tar modules/circe/.jvm/target target modules/server/.native/target modules/example/.js/target modules/core/.native/target modules/core/.js/target modules/circe/.js/target modules/core/.jvm/target modules/example/.native/target modules/circe/.native/target modules/example/.jvm/target modules/server/.jvm/target modules/server/.js/target project/target
 
       - name: Upload target directories
         uses: actions/upload-artifact@v4
