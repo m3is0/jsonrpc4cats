@@ -45,6 +45,9 @@ ThisBuild / githubWorkflowBuildSbtStepPreamble := Seq(
   "++ ${{ matrix.scala }}"
 )
 
+ThisBuild / sonatypeCredentialHost :=
+  xerial.sbt.Sonatype.sonatypeCentralHost
+
 ThisBuild / scalaVersion := "3.3.3"
 
 val MunitV = "1.0.0"
