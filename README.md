@@ -1,4 +1,7 @@
 # jsonrpc4cats
+
+![CI](https://github.com/m3is0/jsonrpc4cats/actions/workflows/ci.yml/badge.svg)
+
 A simple and type-safe implementation of [JSON-RPC 2.0](https://www.jsonrpc.org/specification) protocol (server only).
 
 ## Getting started
