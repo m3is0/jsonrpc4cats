@@ -1,40 +1,14 @@
+ThisBuild / tlBaseVersion := "0.1"
+
 ThisBuild / organization := "io.github.m3is0"
 ThisBuild / organizationName := "m3is0"
 ThisBuild / startYear := Some(2024)
 ThisBuild / licenses := Seq(License.Apache2)
-ThisBuild / homepage := Some(url("https://github.com/m3is0/jsonrpc4cats"))
-ThisBuild / developers := List(
-  Developer("m3is0", "Andrii Y.", "@m3is0", url("https://github.com/m3is0"))
-)
-
-ThisBuild / githubWorkflowJavaVersions := List(JavaSpec.temurin("21"))
-
-ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
-ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")))
-
-ThisBuild / githubWorkflowBuild := Seq(
-  WorkflowStep.Sbt(
-    name = Some("Check headers and formatting"),
-    commands = List("headerCheckAll", "scalafmtCheckAll", "scalafmtSbtCheck")
-  ),
-  WorkflowStep.Sbt(
-    name = Some("Build and test"),
-    commands = List("test")
-  )
-)
-
-ThisBuild / githubWorkflowPublish := Seq(
-  WorkflowStep.Sbt(
-    name = Some("Publish project"),
-    commands = List("ci-release"),
-    env = Map(
-      "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
-      "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
-      "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
-      "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
-    )
-  )
-)
+ThisBuild / developers := List(tlGitHubDev("m3is0", "Andrii Y."))
+ThisBuild / tlCiScalafmtCheck := true
+ThisBuild / tlCiHeaderCheck := true
+ThisBuild / tlCiDependencyGraphJob := false
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / sonatypeCredentialHost :=
   xerial.sbt.Sonatype.sonatypeCentralHost
@@ -45,26 +19,15 @@ val MunitV = "1.0.0"
 val CatsV = "2.12.0"
 val CirceV = "0.14.9"
 
-val NoPublish = Seq(
-  publish / skip := true,
-  publishLocal / skip := true
-)
-
-lazy val root = project
-  .in(file("."))
-  .settings(NoPublish)
+lazy val jsonrpc4cats = tlCrossRootProject
   .aggregate(
-    core.js,
-    core.jvm,
-    server.js,
-    server.jvm,
-    circe.js,
-    circe.jvm,
-    example.js,
-    example.jvm
+    core,
+    server,
+    circe,
+    example
   )
 
-lazy val core = crossProject(JSPlatform, JVMPlatform)
+lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/core"))
   .settings(
@@ -75,7 +38,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     )
   )
 
-lazy val server = crossProject(JSPlatform, JVMPlatform)
+lazy val server = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/server"))
   .settings(
@@ -90,7 +53,7 @@ lazy val server = crossProject(JSPlatform, JVMPlatform)
     circe % "test"
   )
 
-lazy val circe = crossProject(JSPlatform, JVMPlatform)
+lazy val circe = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/circe"))
   .settings(
@@ -105,10 +68,10 @@ lazy val circe = crossProject(JSPlatform, JVMPlatform)
     core % "test->test;compile->compile"
   )
 
-lazy val example = crossProject(JSPlatform, JVMPlatform)
+lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/example"))
-  .settings(NoPublish)
+  .enablePlugins(NoPublishPlugin)
   .settings(
     name := "jsonrpc4cats-example",
     libraryDependencies ++= Seq(
