@@ -10,9 +10,6 @@ ThisBuild / tlCiHeaderCheck := true
 ThisBuild / tlCiDependencyGraphJob := false
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
-ThisBuild / sonatypeCredentialHost :=
-  xerial.sbt.Sonatype.sonatypeCentralHost
-
 ThisBuild / scalaVersion := "3.3.3"
 
 val MunitV = "1.0.0"
