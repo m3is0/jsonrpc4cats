@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
   "io.github.m3is0" %% "jsonrpc4cats-server" % "<version>"
 )
 ```
-Available for Scala 3.3 and above.
+Available for Scala 3.3 and above, cross-built for JVM, JS and Native platforms.
 
 ## Basic example
 ```scala
