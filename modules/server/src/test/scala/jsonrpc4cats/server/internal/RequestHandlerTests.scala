@@ -26,6 +26,10 @@ import io.circe.HCursor
 import io.circe.Json
 import io.circe.syntax.*
 
+import jsonrpc4cats.RpcErr
+import jsonrpc4cats.RpcError
+import jsonrpc4cats.RpcErrorCode
+import jsonrpc4cats.ToRpcError
 import jsonrpc4cats.circe.given
 import jsonrpc4cats.server.*
 
@@ -61,8 +65,8 @@ class RequestHandlerTests extends FunSuite {
     val exp2 = """{"jsonrpc":"2.0","result":-19,"id":2}"""
     val res2 = srv[Eff].handle[Json](req2)
 
-    assertEquals(res1.map(_.map(_.noSpaces)), Right(Some(exp1)))
-    assertEquals(res2.map(_.map(_.noSpaces)), Right(Some(exp2)))
+    assertEquals(res1.map(_.noSpaces).value, Right(Some(exp1)))
+    assertEquals(res2.map(_.noSpaces).value, Right(Some(exp2)))
 
   }
 
@@ -96,8 +100,8 @@ class RequestHandlerTests extends FunSuite {
     val exp2 = """{"jsonrpc":"2.0","result":19,"id":4}"""
     val res2 = srv[Eff].handle[Json](req2)
 
-    assertEquals(res1.map(_.map(_.noSpaces)), Right(Some(exp1)))
-    assertEquals(res2.map(_.map(_.noSpaces)), Right(Some(exp2)))
+    assertEquals(res1.map(_.noSpaces).value, Right(Some(exp1)))
+    assertEquals(res2.map(_.noSpaces).value, Right(Some(exp2)))
 
   }
 
@@ -122,8 +126,8 @@ class RequestHandlerTests extends FunSuite {
     val req2 = """{"jsonrpc":"2.0","method":"foobar"}"""
     val res2 = srv[Eff].handle[Json](req2)
 
-    assert(res1 == Right(None))
-    assert(res2 == Right(None))
+    assert(res1.value == Right(None))
+    assert(res2.value == Right(None))
 
   }
 
@@ -136,7 +140,7 @@ class RequestHandlerTests extends FunSuite {
     val exp = """{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":"1"}"""
     val res = srv[Eff].handle[Json](req)
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(exp)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
 
   }
 
@@ -149,7 +153,7 @@ class RequestHandlerTests extends FunSuite {
     val exp = """{"jsonrpc":"2.0","error":{"code":-32700,"message":"Parse error"},"id":null}"""
     val res = srv[Eff].handle[Json](req)
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(exp)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
 
   }
 
@@ -162,7 +166,7 @@ class RequestHandlerTests extends FunSuite {
     val exp = """{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}"""
     val res = srv[Eff].handle[Json](req)
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(exp)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
 
   }
 
@@ -177,7 +181,7 @@ class RequestHandlerTests extends FunSuite {
     val exp = """{"jsonrpc":"2.0","error":{"code":-32700,"message":"Parse error"},"id":null}"""
     val res = srv[Eff].handle[Json](req)
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(exp)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
 
   }
 
@@ -190,7 +194,7 @@ class RequestHandlerTests extends FunSuite {
     val exp = """{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}"""
     val res = srv[Eff].handle[Json](req)
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(exp)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
 
   }
 
@@ -203,7 +207,7 @@ class RequestHandlerTests extends FunSuite {
     val exp = """[{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":null}]"""
     val res = srv[Eff].handle[Json](req)
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(exp)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
 
   }
 
@@ -217,7 +221,7 @@ class RequestHandlerTests extends FunSuite {
     val exp = s"[$e,$e,$e]"
     val res = srv[Eff].handle[Json](req)
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(exp)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
 
   }
 
@@ -267,7 +271,7 @@ class RequestHandlerTests extends FunSuite {
 
     val res = srv[Eff].handle[Json](req)
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(exp)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
 
   }
 
@@ -291,7 +295,7 @@ class RequestHandlerTests extends FunSuite {
     val req = s"[$r1,$r2]"
     val res = srv[Eff].handle[Json](req)
 
-    assert(res == Right(None))
+    assert(res.value == Right(None))
 
   }
 
@@ -301,7 +305,7 @@ class RequestHandlerTests extends FunSuite {
    */
 
   private def logError[F[_]](log: collection.mutable.ListBuffer[RpcErrorInfo[Json]])(using
-      F: ApplicativeError[F, Throwable]
+    F: ApplicativeError[F, Throwable]
   ): RpcErrorInfo[Json] => F[Unit] =
     err => F.catchNonFatal(log.append(err)) *> F.pure(())
 
@@ -339,7 +343,7 @@ class RequestHandlerTests extends FunSuite {
     val expRes = """{"jsonrpc":"2.0","error":{"code":1000,"message":"Division by zero","data":{"a":21,"b":0}},"id":1}"""
     val expLog = List(RpcErrorInfo(1000, "Division by zero", Some(Map("a" -> 21, "b" -> 0).asJson), req, None))
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(expRes)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(expRes)))
     assertEquals(log.toList, expLog)
 
   }
@@ -364,7 +368,7 @@ class RequestHandlerTests extends FunSuite {
     val expRes = """{"jsonrpc":"2.0","error":{"code":-32603,"message":"Internal error"},"id":1}"""
     val expLog = List(RpcErrorInfo[Json](-32603, "Internal error", None, req, Some(ex)))
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(expRes)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(expRes)))
     assertEquals(log.toList, expLog)
 
   }
@@ -382,7 +386,7 @@ class RequestHandlerTests extends FunSuite {
     val expRes = """{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":1}"""
     val expLog = List(RpcErrorInfo[Json](-32601, "Method not found", None, req, None))
 
-    assertEquals(res.map(_.map(_.noSpaces)), Right(Some(expRes)))
+    assertEquals(res.map(_.noSpaces).value, Right(Some(expRes)))
     assertEquals(log.toList, expLog)
 
   }

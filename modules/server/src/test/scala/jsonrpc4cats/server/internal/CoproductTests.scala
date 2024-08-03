@@ -31,12 +31,12 @@ class CoproductTests extends FunSuite {
     val b: B = Inr(Inl(true))
 
     def extendByRight[L <: Coproduct, R <: Coproduct](l: L)(using
-        ex: ExtendBy[L, R]
+      ex: ExtendBy[L, R]
     ): Extend[L, R] =
       ex.right(l)
 
     def extendByLeft[L <: Coproduct, R <: Coproduct](r: R)(using
-        ex: ExtendBy[L, R]
+      ex: ExtendBy[L, R]
     ): Extend[L, R] =
       ex.left(r)
 

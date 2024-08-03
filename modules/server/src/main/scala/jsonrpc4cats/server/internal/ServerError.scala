@@ -16,8 +16,8 @@
 
 package jsonrpc4cats.server.internal
 
-import jsonrpc4cats.JsonEncoder
-import jsonrpc4cats.JsonFacade
+import jsonrpc4cats.json.JsonEncoder
+import jsonrpc4cats.json.JsonFacade
 
 sealed trait ServerError(val code: Int, val message: String)
 case object ParseError extends ServerError(-32700, "Parse error")

@@ -18,6 +18,6 @@ package jsonrpc4cats.circe
 
 import io.circe.Json
 
-import jsonrpc4cats.JsonDecoderTests
+import jsonrpc4cats.json.JsonDecoderTests
 
 class CirceJsonDecoderTests extends JsonDecoderTests[Json] {}

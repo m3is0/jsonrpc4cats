@@ -18,6 +18,6 @@ package jsonrpc4cats.circe
 
 import io.circe.Json
 
-import jsonrpc4cats.JsonFacadeTests
+import jsonrpc4cats.json.JsonFacadeTests
 
 class CirceJsonFacadeTests extends JsonFacadeTests[Json] {}

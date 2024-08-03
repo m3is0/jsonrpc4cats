@@ -51,7 +51,7 @@ object Coproduct {
   }
 
   given ext2[HH, H0, T0 <: Coproduct, H1, T1 <: Coproduct](using
-      e: ExtendBy[H0 :+: T0, H1 :+: T1]
+    e: ExtendBy[H0 :+: T0, H1 :+: T1]
   ): ExtendBy[HH :+: H0 :+: T0, H1 :+: T1] with {
     def right(l: HH :+: H0 :+: T0) =
       l match {

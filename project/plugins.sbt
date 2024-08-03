@@ -1,9 +1,7 @@
-resolvers ++= Resolver.sonatypeOssRepos("snapshots")
-
 addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.0")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.10.0")
-addSbtPlugin("org.typelevel" % "sbt-typelevel-ci-release" % "0.7.2-8-ce3d86e-SNAPSHOT")
+addSbtPlugin("org.typelevel" % "sbt-typelevel-ci-release" % "0.7.3")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.16.0")

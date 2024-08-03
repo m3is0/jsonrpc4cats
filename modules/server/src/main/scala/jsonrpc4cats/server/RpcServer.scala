@@ -21,6 +21,7 @@ import scala.compiletime.ops.any.*
 import scala.compiletime.ops.boolean.*
 
 import cats.Applicative
+import cats.data.OptionT
 
 import jsonrpc4cats.server.internal.*
 
@@ -44,7 +45,7 @@ object RpcServer {
     }
 
   inline def add[F[_], K <: String & Singleton, P <: Product, E, R](
-      m: RpcMethod[F, K, P, E, R]
+    m: RpcMethod[F, K, P, E, R]
   ): RpcServer[F, RpcMethod[F, K, P, E, R] :+: CNil] =
     new RpcServer[F, RpcMethod[F, K, P, E, R] :+: CNil] {
       def apply(method: String) =
@@ -55,8 +56,8 @@ object RpcServer {
 
   extension [F[_]: Applicative, L <: Coproduct](srvL: RpcServer[F, L]) {
     inline def extend[R <: Coproduct](srvR: RpcServer[F, R])(using
-        ex: ExtendBy[L, R],
-        ev: DistinctMethods[F, Extend[L, R]] =:= true
+      ex: ExtendBy[L, R],
+      ev: DistinctMethods[F, Extend[L, R]] =:= true
     ): RpcServer[F, Extend[L, R]] =
       new RpcServer[F, Extend[L, R]] {
         def apply(method: String) =
@@ -69,19 +70,19 @@ object RpcServer {
       }
 
     inline def add[K <: String & Singleton, P <: Product, E, R](m: RpcMethod[F, K, P, E, R])(using
-        ex: ExtendBy[L, RpcMethod[F, K, P, E, R] :+: CNil],
-        ev: DistinctMethods[F, Extend[L, RpcMethod[F, K, P, E, R] :+: CNil]] =:= true
+      ex: ExtendBy[L, RpcMethod[F, K, P, E, R] :+: CNil],
+      ev: DistinctMethods[F, Extend[L, RpcMethod[F, K, P, E, R] :+: CNil]] =:= true
     ): RpcServer[F, Extend[L, RpcMethod[F, K, P, E, R] :+: CNil]] =
       srvL.extend(RpcServer.add[F, K, P, E, R](m))
 
     def handle[J](req: String)(using
-        handleRequest: RequestHandler[F, L, J]
-    ): F[Option[J]] =
-      handleRequest(req, srvL, _ => Applicative[F].pure(()))
+      handleRequest: RequestHandler[F, L, J]
+    ): OptionT[F, J] =
+      OptionT(handleRequest(req, srvL, _ => Applicative[F].pure(())))
 
     def handle[J](req: String, onError: RequestHandler.OnError[F, J])(using
-        handleRequest: RequestHandler[F, L, J]
-    ): F[Option[J]] =
-      handleRequest(req, srvL, onError)
+      handleRequest: RequestHandler[F, L, J]
+    ): OptionT[F, J] =
+      OptionT(handleRequest(req, srvL, onError))
   }
 }

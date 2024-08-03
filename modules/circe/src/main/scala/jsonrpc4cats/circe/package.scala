@@ -21,10 +21,7 @@ import io.circe.Encoder
 import io.circe.Json
 import io.circe.parser.parse
 
-import jsonrpc4cats.JsonDecoder
-import jsonrpc4cats.JsonEncoder
-import jsonrpc4cats.JsonFacade
-import jsonrpc4cats.JsonParser
+import jsonrpc4cats.json.*
 
 given jsonParser: JsonParser[Json] =
   JsonParser.instance[Json] { s =>

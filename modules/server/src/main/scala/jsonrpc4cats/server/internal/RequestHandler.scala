@@ -23,6 +23,7 @@ import cats.MonadError
 import cats.syntax.all.*
 
 import jsonrpc4cats.*
+import jsonrpc4cats.json.*
 
 trait RequestHandler[F[_], A <: Coproduct, J] {
   def apply(req: String, srv: RpcServer[F, A], onError: RequestHandler.OnError[F, J]): F[Option[J]]
@@ -33,12 +34,12 @@ object RequestHandler {
   type OnError[F[_], J] = RpcErrorInfo[J] => F[Unit]
 
   given requestHandler[F[_], A <: Coproduct, J](using
-      F: MonadError[F, Throwable],
-      json: JsonFacade[J],
-      parseRequest: JsonParser[J],
-      decodeRequest: JsonDecoder[J, Request[J]],
-      encodeError: JsonEncoder[J, ErrorResponse[ServerError]],
-      eval: Eval[F, A, J]
+    F: MonadError[F, Throwable],
+    json: JsonFacade[J],
+    parseRequest: JsonParser[J],
+    decodeRequest: JsonDecoder[J, Request[J]],
+    encodeError: JsonEncoder[J, ErrorResponse[ServerError]],
+    eval: Eval[F, A, J]
   ): RequestHandler[F, A, J] =
     new RequestHandler {
       def apply(req: String, srv: RpcServer[F, A], onError: OnError[F, J]): F[Option[J]] = {
@@ -99,8 +100,8 @@ object RequestHandler {
   }
 
   given coproductEval[F[_], H, T <: Coproduct, J](using
-      hEval: Eval[F, H, J],
-      tEval: Eval[F, T, J]
+    hEval: Eval[F, H, J],
+    tEval: Eval[F, T, J]
   ): Eval[F, H :+: T, J] with {
     def apply(method: H :+: T, params: J, id: Option[RequestId], req: String, onError: OnError[F, J]): F[Option[J]] =
       method match {
@@ -112,26 +113,26 @@ object RequestHandler {
   }
 
   given methodEval[F[_], K <: String & Singleton, P <: Product, E, R, J](using
-      F: Monad[F],
-      decodeParams: JsonDecoder[J, P],
-      encodeResult: JsonEncoder[J, ResultResponse[R]],
-      toRpcError: ToRpcError[J, E],
-      encodeRpcError: JsonEncoder[J, ErrorResponse[RpcError[J]]],
-      encodeServerError: JsonEncoder[J, ErrorResponse[ServerError]]
+    F: Monad[F],
+    decodeParams: JsonDecoder[J, P],
+    encodeResult: JsonEncoder[J, ResultResponse[R]],
+    toRpcError: ToRpcError[J, E],
+    encodeRpcError: JsonEncoder[J, ErrorResponse[RpcError[RpcErrorCode, J]]],
+    encodeServerError: JsonEncoder[J, ErrorResponse[ServerError]]
   ): Eval[F, RpcMethod[F, K, P, E, R], J] with {
     def apply(
-        method: RpcMethod[F, K, P, E, R],
-        params: J,
-        id: Option[RequestId],
-        req: String,
-        onError: OnError[F, J]
+      method: RpcMethod[F, K, P, E, R],
+      params: J,
+      id: Option[RequestId],
+      req: String,
+      onError: OnError[F, J]
     ): F[Option[J]] = {
 
       def handleServerError(err: ServerError, id: Option[RequestId]): F[Option[J]] =
         onError(RpcErrorInfo(err.code, err.message, None, req, None)) *>
           F.pure(id.map(i => encodeServerError(ErrorResponse(err, i))))
 
-      def handleRpcError(err: RpcError[J], id: Option[RequestId]): F[Option[J]] =
+      def handleRpcError(err: RpcError[RpcErrorCode, J], id: Option[RequestId]): F[Option[J]] =
         onError(RpcErrorInfo(err.code.toInt, err.message, err.data, req, None)) *>
           F.pure(id.map(i => encodeRpcError(ErrorResponse(err, i))))
 

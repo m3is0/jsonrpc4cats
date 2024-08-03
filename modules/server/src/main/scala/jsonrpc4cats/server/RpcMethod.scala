@@ -22,7 +22,7 @@ trait RpcMethod[F[_], K <: String & Singleton, P <: Product, E, R] {
 
 object RpcMethod {
   inline def instance[F[_], K <: String & Singleton, P <: Product, E, R](
-      f: P => F[Either[E, R]]
+    f: P => F[Either[E, R]]
   ): RpcMethod[F, K, P, E, R] =
     new RpcMethod[F, K, P, E, R] {
       def apply(p: P): F[Either[E, R]] =

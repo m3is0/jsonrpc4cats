@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion := "0.2"
+ThisBuild / tlBaseVersion := "0.3"
 
 ThisBuild / organization := "io.github.m3is0"
 ThisBuild / organizationName := "m3is0"
@@ -12,42 +12,28 @@ ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 
 ThisBuild / scalaVersion := "3.3.3"
 
-val MunitV = "1.0.0"
+val MunitV = "1.0.2"
 val CatsV = "2.12.0"
-val CirceV = "0.14.9"
+val CirceV = "0.14.10"
 
 lazy val jsonrpc4cats = tlCrossRootProject
   .aggregate(
+    json,
+    circe,
     core,
     server,
-    circe,
+    client,
     example
   )
 
-lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+lazy val json = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
-  .in(file("modules/core"))
+  .in(file("modules/json"))
   .settings(
-    name := "jsonrpc4cats-core",
+    name := "jsonrpc4cats-json",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % CatsV,
       "org.scalameta" %%% "munit" % MunitV % Test
     )
-  )
-
-lazy val server = crossProject(JSPlatform, JVMPlatform, NativePlatform)
-  .crossType(CrossType.Pure)
-  .in(file("modules/server"))
-  .settings(
-    name := "jsonrpc4cats-server",
-    libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % CatsV,
-      "org.scalameta" %%% "munit" % MunitV % Test
-    )
-  )
-  .dependsOn(
-    core,
-    circe % "test"
   )
 
 lazy val circe = crossProject(JSPlatform, JVMPlatform, NativePlatform)
@@ -62,7 +48,52 @@ lazy val circe = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     )
   )
   .dependsOn(
-    core % "test->test;compile->compile"
+    json % "test->test;compile->compile"
+  )
+
+lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .in(file("modules/core"))
+  .settings(
+    name := "jsonrpc4cats-core",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core" % CatsV,
+      "org.scalameta" %%% "munit" % MunitV % Test
+    )
+  )
+  .dependsOn(
+    json,
+    circe % Test
+  )
+
+lazy val server = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .in(file("modules/server"))
+  .settings(
+    name := "jsonrpc4cats-server",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core" % CatsV,
+      "org.scalameta" %%% "munit" % MunitV % Test
+    )
+  )
+  .dependsOn(
+    core,
+    circe % Test
+  )
+
+lazy val client = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .in(file("modules/client"))
+  .settings(
+    name := "jsonrpc4cats-client",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core" % CatsV,
+      "org.scalameta" %%% "munit" % MunitV % Test
+    )
+  )
+  .dependsOn(
+    core,
+    circe % Test
   )
 
 lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
@@ -78,5 +109,6 @@ lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   )
   .dependsOn(
     server,
+    client,
     circe
   )
