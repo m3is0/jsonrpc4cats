@@ -115,7 +115,7 @@ object CalcClient {
 
   import RpcCall.*
 
-  // 1. Define errors (it's also possible to share errors between server and client)
+  // 1. Define errors (it's also possible to define errors in a shared module)
 
   sealed trait Err
   case object DivByZero extends Err
