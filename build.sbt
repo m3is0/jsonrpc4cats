@@ -9,6 +9,7 @@ ThisBuild / tlCiScalafmtCheck := true
 ThisBuild / tlCiHeaderCheck := true
 ThisBuild / tlCiDependencyGraphJob := false
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
+ThisBuild / tlSitePublishBranch := Some("main")
 
 ThisBuild / scalaVersion := "3.3.3"
 
@@ -111,4 +112,28 @@ lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     server,
     client,
     circe
+  )
+
+lazy val docs = project
+  .in(file("site"))
+  .enablePlugins(TypelevelSitePlugin)
+  .settings(
+    tlSiteIsTypelevelProject := None,
+    laikaTheme := {
+      // scalafmt: { newlines.source = keep }
+      import laika.ast.*
+      import laika.helium.config.*
+      tlSiteHelium.value
+        .site.topNavigationBar(
+          homeLink = TextLink.internal(Path.Root / "README.md", "jsonrpc4cats"),
+          navLinks = Seq(
+            IconLink.external("https://github.com/m3is0/jsonrpc4cats", HeliumIcon.github)
+          )
+        )
+        .site.footer(
+          Text("jsonrpc4cats is designed and developed by "),
+          SpanLink.external("https://github.com/m3is0")(Literal("m3is0"))
+        )
+        .build
+    }
   )
