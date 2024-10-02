@@ -125,10 +125,7 @@ lazy val docs = project
       import laika.helium.config.*
       tlSiteHelium.value
         .site.topNavigationBar(
-          homeLink = TextLink.internal(Path.Root / "README.md", "jsonrpc4cats"),
-          navLinks = Seq(
-            IconLink.external("https://github.com/m3is0/jsonrpc4cats", HeliumIcon.github)
-          )
+          homeLink = TextLink.internal(Path.Root / "README.md", "jsonrpc4cats")
         )
         .site.footer(
           Text("jsonrpc4cats is designed and developed by "),
