@@ -304,9 +304,9 @@ class RequestHandlerTests extends FunSuite {
    *
    */
 
-  private def logError[F[_]](log: collection.mutable.ListBuffer[RpcErrorInfo[Json]])(using
+  private def logError[F[_]](log: collection.mutable.ListBuffer[RpcErrorInfo])(using
     F: ApplicativeError[F, Throwable]
-  ): RpcErrorInfo[Json] => F[Unit] =
+  ): RpcErrorInfo => F[Unit] =
     err => F.catchNonFatal(log.append(err)) *> F.pure(())
 
   test("A custom error type") {
@@ -335,13 +335,13 @@ class RequestHandlerTests extends FunSuite {
     def srv[F[_]: Applicative] =
       RpcServer.add(divide[F])
 
-    val log = collection.mutable.ListBuffer.empty[RpcErrorInfo[Json]]
+    val log = collection.mutable.ListBuffer.empty[RpcErrorInfo]
 
     val req = """{"jsonrpc":"2.0","method":"divide","params":[21, 0],"id":1}"""
     val res = srv[Eff].handle[Json](req, logError(log))
 
     val expRes = """{"jsonrpc":"2.0","error":{"code":1000,"message":"Division by zero","data":{"a":21,"b":0}},"id":1}"""
-    val expLog = List(RpcErrorInfo(1000, "Division by zero", Some(Map("a" -> 21, "b" -> 0).asJson), req, None))
+    val expLog = List(RpcErrorInfo(1000, "Division by zero", Some("""{"a":21,"b":0}"""), req, None))
 
     assertEquals(res.map(_.noSpaces).value, Right(Some(expRes)))
     assertEquals(log.toList, expLog)
@@ -360,13 +360,13 @@ class RequestHandlerTests extends FunSuite {
     def srv[F[_]](using ApplicativeError[F, Throwable]) =
       RpcServer.add(foobar[F])
 
-    val log = collection.mutable.ListBuffer.empty[RpcErrorInfo[Json]]
+    val log = collection.mutable.ListBuffer.empty[RpcErrorInfo]
 
     val req = """{"jsonrpc":"2.0","method":"foobar","params":[21, 0],"id":1}"""
     val res = srv[Eff].handle[Json](req, logError(log))
 
     val expRes = """{"jsonrpc":"2.0","error":{"code":-32603,"message":"Internal error"},"id":1}"""
-    val expLog = List(RpcErrorInfo[Json](-32603, "Internal error", None, req, Some(ex)))
+    val expLog = List(RpcErrorInfo(-32603, "Internal error", None, req, Some(ex)))
 
     assertEquals(res.map(_.noSpaces).value, Right(Some(expRes)))
     assertEquals(log.toList, expLog)
@@ -378,13 +378,13 @@ class RequestHandlerTests extends FunSuite {
     def srv[F[_]: Applicative] =
       RpcServer.add(noop[F])
 
-    val log = collection.mutable.ListBuffer.empty[RpcErrorInfo[Json]]
+    val log = collection.mutable.ListBuffer.empty[RpcErrorInfo]
 
     val req = """{"jsonrpc":"2.0","method":"divide","params":[21, 0],"id":1}"""
     val res = srv[Eff].handle[Json](req, logError(log))
 
     val expRes = """{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":1}"""
-    val expLog = List(RpcErrorInfo[Json](-32601, "Method not found", None, req, None))
+    val expLog = List(RpcErrorInfo(-32601, "Method not found", None, req, None))
 
     assertEquals(res.map(_.noSpaces).value, Right(Some(expRes)))
     assertEquals(log.toList, expLog)

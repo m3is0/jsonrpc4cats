@@ -23,8 +23,11 @@ import io.circe.parser.parse
 
 import jsonrpc4cats.json.*
 
+given jsonPrinter: JsonPrinter[Json] =
+  JsonPrinter.instance(_.noSpaces)
+
 given jsonParser: JsonParser[Json] =
-  JsonParser.instance[Json] { s =>
+  JsonParser.instance { s =>
     parse(s).fold(
       _ => None,
       _.arrayOrObject(
@@ -36,7 +39,7 @@ given jsonParser: JsonParser[Json] =
   }
 
 given jsonFacade: JsonFacade[Json] =
-  new JsonFacade[Json] {
+  new JsonFacade {
     def asString(j: Json): Option[String] = j.asString
     def asInt(j: Json): Option[Int] = j.asNumber.flatMap(_.toInt)
     def asMap(j: Json): Option[Map[String, Json]] = j.asObject.map(_.toMap)
@@ -49,7 +52,7 @@ given jsonFacade: JsonFacade[Json] =
   }
 
 given jsonEncoder[A](using enc: Encoder[A]): JsonEncoder[Json, A] =
-  JsonEncoder.instance[Json, A](enc.apply)
+  JsonEncoder.instance(enc.apply)
 
 given jsonDecoder[A](using dec: Decoder[A]): JsonDecoder[Json, A] =
-  JsonDecoder.instance[Json, A](j => dec.decodeJson(j).toOption)
+  JsonDecoder.instance(j => dec.decodeJson(j).toOption)

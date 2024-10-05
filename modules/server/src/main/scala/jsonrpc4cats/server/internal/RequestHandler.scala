@@ -26,12 +26,12 @@ import jsonrpc4cats.*
 import jsonrpc4cats.json.*
 
 trait RequestHandler[F[_], A <: Coproduct, J] {
-  def apply(req: String, srv: RpcServer[F, A], onError: RequestHandler.OnError[F, J]): F[Option[J]]
+  def apply(req: String, srv: RpcServer[F, A], onError: RequestHandler.OnError[F]): F[Option[J]]
 }
 
 object RequestHandler {
 
-  type OnError[F[_], J] = RpcErrorInfo[J] => F[Unit]
+  type OnError[F[_]] = RpcErrorInfo => F[Unit]
 
   given requestHandler[F[_], A <: Coproduct, J](using
     F: MonadError[F, Throwable],
@@ -42,7 +42,7 @@ object RequestHandler {
     eval: Eval[F, A, J]
   ): RequestHandler[F, A, J] =
     new RequestHandler {
-      def apply(req: String, srv: RpcServer[F, A], onError: OnError[F, J]): F[Option[J]] = {
+      def apply(req: String, srv: RpcServer[F, A], onError: OnError[F]): F[Option[J]] = {
 
         def handleError(err: ServerError, id: Option[RequestId], ex: Option[Throwable] = None): F[Option[J]] =
           onError(RpcErrorInfo(err.code, err.message, None, req, ex)) *>
@@ -91,11 +91,11 @@ object RequestHandler {
     }
 
   trait Eval[F[_], A, J] {
-    def apply(method: A, papams: J, id: Option[RequestId], req: String, onError: OnError[F, J]): F[Option[J]]
+    def apply(method: A, papams: J, id: Option[RequestId], req: String, onError: OnError[F]): F[Option[J]]
   }
 
   given cnilEval[F[_], J](using F: Applicative[F]): Eval[F, CNil, J] with {
-    def apply(method: CNil, papams: J, id: Option[RequestId], req: String, onError: OnError[F, J]): F[Option[J]] =
+    def apply(method: CNil, papams: J, id: Option[RequestId], req: String, onError: OnError[F]): F[Option[J]] =
       F.pure(None)
   }
 
@@ -103,7 +103,7 @@ object RequestHandler {
     hEval: Eval[F, H, J],
     tEval: Eval[F, T, J]
   ): Eval[F, H :+: T, J] with {
-    def apply(method: H :+: T, params: J, id: Option[RequestId], req: String, onError: OnError[F, J]): F[Option[J]] =
+    def apply(method: H :+: T, params: J, id: Option[RequestId], req: String, onError: OnError[F]): F[Option[J]] =
       method match {
         case Inl(v) =>
           hEval(v, params, id, req, onError)
@@ -114,6 +114,7 @@ object RequestHandler {
 
   given methodEval[F[_], K <: String & Singleton, P <: Product, E, R, J](using
     F: Monad[F],
+    printJson: JsonPrinter[J],
     decodeParams: JsonDecoder[J, P],
     encodeResult: JsonEncoder[J, ResultResponse[R]],
     toRpcError: ToRpcError[J, E],
@@ -125,7 +126,7 @@ object RequestHandler {
       params: J,
       id: Option[RequestId],
       req: String,
-      onError: OnError[F, J]
+      onError: OnError[F]
     ): F[Option[J]] = {
 
       def handleServerError(err: ServerError, id: Option[RequestId]): F[Option[J]] =
@@ -133,7 +134,7 @@ object RequestHandler {
           F.pure(id.map(i => encodeServerError(ErrorResponse(err, i))))
 
       def handleRpcError(err: RpcError[RpcErrorCode, J], id: Option[RequestId]): F[Option[J]] =
-        onError(RpcErrorInfo(err.code.toInt, err.message, err.data, req, None)) *>
+        onError(RpcErrorInfo(err.code.toInt, err.message, err.data.map(printJson.apply), req, None)) *>
           F.pure(id.map(i => encodeRpcError(ErrorResponse(err, i))))
 
       decodeParams(params).toRight(InvalidParams) match {

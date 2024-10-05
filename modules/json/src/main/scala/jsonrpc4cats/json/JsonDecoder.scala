@@ -30,7 +30,7 @@ object JsonDecoder {
         f(j)
     }
 
-  given emptyTupleJsonDecoder[J](using json: JsonFacade[J]): JsonDecoder[J, EmptyTuple] =
+  given emptyTupleDecoder[J](using json: JsonFacade[J]): JsonDecoder[J, EmptyTuple] =
     instance { j =>
       json.asVector(j) match {
         case Some(Vector()) =>

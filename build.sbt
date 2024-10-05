@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion := "0.3"
+ThisBuild / tlBaseVersion := "0.4"
 
 ThisBuild / organization := "io.github.m3is0"
 ThisBuild / organizationName := "m3is0"
@@ -14,8 +14,11 @@ ThisBuild / tlSitePublishBranch := Some("main")
 ThisBuild / scalaVersion := "3.3.3"
 
 val MunitV = "1.0.2"
+val MunitCatsEffectV = "1.0.6"
+
 val CatsV = "2.12.0"
 val CirceV = "0.14.10"
+val Http4sV = "0.23.28"
 
 lazy val jsonrpc4cats = tlCrossRootProject
   .aggregate(
@@ -24,6 +27,7 @@ lazy val jsonrpc4cats = tlCrossRootProject
     core,
     server,
     client,
+    http4s,
     example
   )
 
@@ -94,6 +98,23 @@ lazy val client = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   )
   .dependsOn(
     core,
+    circe % Test
+  )
+
+lazy val http4s = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("modules/http4s"))
+  .settings(
+    name := "jsonrpc4cats-http4s",
+    libraryDependencies ++= Seq(
+      "org.http4s" %%% "http4s-dsl" % Http4sV,
+      "org.http4s" %%% "http4s-server" % Http4sV,
+      "org.scalameta" %%% "munit" % MunitV % Test,
+      "org.typelevel" %%% "munit-cats-effect-3" % MunitCatsEffectV % Test
+    )
+  )
+  .dependsOn(
+    server,
     circe % Test
   )
 

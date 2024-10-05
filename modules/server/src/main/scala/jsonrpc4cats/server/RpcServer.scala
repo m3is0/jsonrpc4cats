@@ -80,7 +80,7 @@ object RpcServer {
     ): OptionT[F, J] =
       OptionT(handleRequest(req, srvL, _ => Applicative[F].pure(())))
 
-    def handle[J](req: String, onError: RequestHandler.OnError[F, J])(using
+    def handle[J](req: String, onError: RequestHandler.OnError[F])(using
       handleRequest: RequestHandler[F, L, J]
     ): OptionT[F, J] =
       OptionT(handleRequest(req, srvL, onError))

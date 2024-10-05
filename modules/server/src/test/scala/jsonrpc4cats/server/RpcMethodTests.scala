@@ -22,12 +22,31 @@ import cats.Id
 
 class RpcMethodTests extends FunSuite {
 
+  final case class User(role: String)
+
   test("RpcMethod.instance") {
-    val m = RpcMethod.instance[Id, "add", (Int, Int), Unit, Int] { (a, b) =>
+    val m = RpcMethod.instance[Id, "abc", (Int, Int), Unit, Int] { (a, b) =>
       Right(a + b)
     }
 
     assertEquals(m((1, 2)), Right(3))
+  }
+
+  test("RpcMethod.withAuth") {
+    val m = RpcMethod.withAuth[Id, User, "abc", (Int, Int), Unit, String] { case (user, (a, b)) =>
+      Right(s"${user.role}_${a}_${b}")
+    }
+
+    assertEquals(m((1, 2)).run(User("admin")).value, Some(Right("admin_1_2")))
+  }
+
+  test("RpcMethod.withAuthIf") {
+    val m = RpcMethod.withAuthIf[Id, User, "abc", (Int, Int), Unit, String](_.role == "admin") { case (user, (a, b)) =>
+      Right(s"${user.role}_${a}_${b}")
+    }
+
+    assertEquals(m((1, 2)).run(User("admin")).value, Some(Right("admin_1_2")))
+    assertEquals(m((1, 2)).run(User("user")).value, None)
   }
 
 }

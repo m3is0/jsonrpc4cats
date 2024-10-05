@@ -16,11 +16,16 @@
 
 package jsonrpc4cats.server
 
+import cats.Applicative
+
+import jsonrpc4cats.server.internal.Auth
+
 trait RpcMethod[F[_], K <: String & Singleton, P <: Product, E, R] {
   def apply(p: P): F[Either[E, R]]
 }
 
 object RpcMethod {
+
   inline def instance[F[_], K <: String & Singleton, P <: Product, E, R](
     f: P => F[Either[E, R]]
   ): RpcMethod[F, K, P, E, R] =
@@ -28,4 +33,15 @@ object RpcMethod {
       def apply(p: P): F[Either[E, R]] =
         f(p)
     }
+
+  inline def withAuth[F[_]: Applicative, U, K <: String & Singleton, P <: Product, E, R](
+    f: (U, P) => F[Either[E, R]]
+  ): RpcMethod[Auth[F, U], K, P, E, R] =
+    instance[Auth[F, U], K, P, E, R](p => Auth.allowAll[U](u => f(u, p)))
+
+  inline def withAuthIf[F[_]: Applicative, U, K <: String & Singleton, P <: Product, E, R](cond: U => Boolean)(
+    f: (U, P) => F[Either[E, R]]
+  ): RpcMethod[Auth[F, U], K, P, E, R] =
+    instance[Auth[F, U], K, P, E, R](p => Auth.allowIf[U](cond)(u => f(u, p)))
+
 }

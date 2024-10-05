@@ -14,12 +14,35 @@
  * limitations under the License.
  */
 
-package jsonrpc4cats.server
+package jsonrpc4cats.server.internal
 
-final case class RpcErrorInfo(
-  code: Int,
-  message: String,
-  data: Option[String],
-  request: String,
-  exception: Option[Throwable]
-)
+import munit.FunSuite
+
+import cats.Id
+
+class AuthTests extends FunSuite {
+
+  import Auth.*
+
+  final case class User(role: String)
+
+  test("allowAll test") {
+
+    val action: Auth[Id, User][String] =
+      allowAll[User](u => Id(u.role))
+
+    assert(action.run(User("user")).value == Some("user"))
+
+  }
+
+  test("allowIf test") {
+
+    val action: Auth[Id, User][String] =
+      allowIf[User](_.role == "admin")(u => Id(u.role))
+
+    assert(action.run(User("admin")).value == Some("admin"))
+    assert(action.run(User("user")).value == None)
+
+  }
+
+}
