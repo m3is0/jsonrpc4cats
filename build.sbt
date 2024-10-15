@@ -118,7 +118,7 @@ lazy val http4s = crossProject(JSPlatform, JVMPlatform)
     circe % Test
   )
 
-lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+lazy val example = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/example"))
   .enablePlugins(NoPublishPlugin)
@@ -132,6 +132,7 @@ lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .dependsOn(
     server,
     client,
+    http4s,
     circe
   )
 
