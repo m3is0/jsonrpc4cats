@@ -25,7 +25,7 @@ import scala.compiletime.*
 import scala.compiletime.ops.any.*
 import scala.compiletime.ops.boolean.*
 
-import cats.Applicative
+import cats.MonadError
 import cats.data.OptionT
 
 import jsonrpc4cats.server.internal.*
@@ -35,6 +35,7 @@ trait RpcServer[F[_], A <: Coproduct] {
 }
 
 object RpcServer {
+
   import Coproduct.*
 
   type NoMethod[F[_], A <: Coproduct, K] <: Boolean =
@@ -59,7 +60,7 @@ object RpcServer {
         else None
     }
 
-  extension [F[_]: Applicative, L <: Coproduct](srvL: RpcServer[F, L]) {
+  extension [F[_], L <: Coproduct](srvL: RpcServer[F, L]) {
     inline def extend[R <: Coproduct](srvR: RpcServer[F, R])(using
       ex: ExtendBy[L, R],
       ev: DistinctMethods[F, Extend[L, R]] =:= true
@@ -79,15 +80,18 @@ object RpcServer {
       ev: DistinctMethods[F, Extend[L, RpcMethod[F, K, P, E, R] :+: CNil]] =:= true
     ): RpcServer[F, Extend[L, RpcMethod[F, K, P, E, R] :+: CNil]] =
       srvL.extend(RpcServer.add[F, K, P, E, R](m))
+  }
 
+  extension [F[_], L <: Coproduct](srvL: RpcServer[F, L])(using F: MonadError[F, Throwable]) {
     def handle[J](req: String)(using
       handleRequest: RequestHandler[F, L, J]
     ): OptionT[F, J] =
-      OptionT(handleRequest(req, srvL, _ => Applicative[F].pure(())))
+      OptionT(handleRequest(req, srvL, _ => F.pure(())))
 
     def handle[J](req: String, onError: RequestHandler.OnError[F])(using
       handleRequest: RequestHandler[F, L, J]
     ): OptionT[F, J] =
       OptionT(handleRequest(req, srvL, onError))
   }
+
 }

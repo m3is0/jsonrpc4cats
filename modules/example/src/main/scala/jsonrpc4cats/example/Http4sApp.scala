@@ -1,7 +1,6 @@
 package jsonrpc4cats.example
 
 import cats.Applicative
-import cats.MonadError
 import cats.data.Kleisli
 import cats.data.OptionT
 import cats.effect.IO
