@@ -28,7 +28,7 @@ class AuthTests extends FunSuite {
 
   test("allowAll test") {
 
-    val action: Auth[Id, User][String] =
+    val action: Auth[Id, User, String] =
       allowAll[User](u => Id(u.role))
 
     assert(action.run(User("user")).value == Some("user"))
@@ -37,7 +37,7 @@ class AuthTests extends FunSuite {
 
   test("allowIf test") {
 
-    val action: Auth[Id, User][String] =
+    val action: Auth[Id, User, String] =
       allowIf[User](_.role == "admin")(u => Id(u.role))
 
     assert(action.run(User("admin")).value == Some("admin"))

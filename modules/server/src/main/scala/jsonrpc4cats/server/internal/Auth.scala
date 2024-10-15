@@ -20,21 +20,21 @@ import cats.Applicative
 import cats.data.Kleisli
 import cats.data.OptionT
 
-type Auth[F[_], U] = [x] =>> Kleisli[[y] =>> OptionT[F, y], U, x]
+type Auth[F[_], U, A] = Kleisli[[x] =>> OptionT[F, x], U, A]
 
 object Auth {
 
   def liftF[U]: LiftFPartiallyApplied[U] = new LiftFPartiallyApplied[U]
 
   private[internal] final class LiftFPartiallyApplied[U](val dummie: Boolean = true) {
-    def apply[F[_]: Applicative, A](fa: F[A]): Auth[F, U][A] =
+    def apply[F[_]: Applicative, A](fa: F[A]): Auth[F, U, A] =
       Kleisli(_ => OptionT.liftF(fa))
   }
 
   def allowIf[U]: AllowIfPartiallyApplied[U] = new AllowIfPartiallyApplied[U]
 
   private[internal] final class AllowIfPartiallyApplied[U](val dummie: Boolean = true) {
-    def apply[F[_]: Applicative, A](cond: U => Boolean)(f: U => F[A]): Auth[F, U][A] =
+    def apply[F[_]: Applicative, A](cond: U => Boolean)(f: U => F[A]): Auth[F, U, A] =
       Kleisli { u =>
         cond(u) match {
           case true => OptionT.liftF(f(u))
@@ -46,7 +46,7 @@ object Auth {
   def allowAll[U]: AllowAllPartiallyApplied[U] = new AllowAllPartiallyApplied[U]
 
   private[internal] final class AllowAllPartiallyApplied[U](val dummie: Boolean = true) {
-    def apply[F[_]: Applicative, A](f: U => F[A]): Auth[F, U][A] =
+    def apply[F[_]: Applicative, A](f: U => F[A]): Auth[F, U, A] =
       Kleisli(u => OptionT.liftF(f(u)))
   }
 

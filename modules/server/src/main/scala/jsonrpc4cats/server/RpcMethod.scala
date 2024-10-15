@@ -36,12 +36,12 @@ object RpcMethod {
 
   inline def withAuth[F[_]: Applicative, U, K <: String & Singleton, P <: Product, E, R](
     f: (U, P) => F[Either[E, R]]
-  ): RpcMethod[Auth[F, U], K, P, E, R] =
-    instance[Auth[F, U], K, P, E, R](p => Auth.allowAll[U](u => f(u, p)))
+  ): RpcMethod[[x] =>> Auth[F, U, x], K, P, E, R] =
+    instance[[x] =>> Auth[F, U, x], K, P, E, R](p => Auth.allowAll[U](u => f(u, p)))
 
   inline def withAuthIf[F[_]: Applicative, U, K <: String & Singleton, P <: Product, E, R](cond: U => Boolean)(
     f: (U, P) => F[Either[E, R]]
-  ): RpcMethod[Auth[F, U], K, P, E, R] =
-    instance[Auth[F, U], K, P, E, R](p => Auth.allowIf[U](cond)(u => f(u, p)))
+  ): RpcMethod[[x] =>> Auth[F, U, x], K, P, E, R] =
+    instance[[x] =>> Auth[F, U, x], K, P, E, R](p => Auth.allowIf[U](cond)(u => f(u, p)))
 
 }

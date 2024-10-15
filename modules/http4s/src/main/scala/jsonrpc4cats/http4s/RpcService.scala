@@ -76,21 +76,21 @@ object RpcService {
   }
 
   /**
-   * Creates AuthedRoutes[U, F] for RpcServer[Auth[F, U], A]
+   * Creates AuthedRoutes[U, F] for RpcServer[[x] =>> Auth[F, U, x], A]
    */
   def authedRoutes[J]: AuthedRoutesPartiallyApplied[J] = new AuthedRoutesPartiallyApplied[J]()
 
   private[http4s] final class AuthedRoutesPartiallyApplied[J](val dummie: Boolean = true) {
-    def apply[F[_], A <: Coproduct, U](srv: RpcServer[Auth[F, U], A])(using
+    def apply[F[_], A <: Coproduct, U](srv: RpcServer[[x] =>> Auth[F, U, x], A])(using
       JsonPrinter[J],
-      RequestHandler[Auth[F, U], A, J]
+      RequestHandler[[x] =>> Auth[F, U, x], A, J]
     )(using F: Concurrent[F]): AuthedRoutes[U, F] =
       apply[F, A, U](srv, _ => F.pure(()))
 
     def apply[F[_], A <: Coproduct, U](
-      srv: RpcServer[Auth[F, U], A],
+      srv: RpcServer[[x] =>> Auth[F, U, x], A],
       onError: RequestHandler.OnError[F]
-    )(using RequestHandler[Auth[F, U], A, J])(using
+    )(using RequestHandler[[x] =>> Auth[F, U, x], A, J])(using
       F: Concurrent[F],
       printJson: JsonPrinter[J]
     ): AuthedRoutes[U, F] =
