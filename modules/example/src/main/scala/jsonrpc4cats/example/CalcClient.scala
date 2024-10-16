@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// scalafmt: { newlines.source = keep }
+
 package jsonrpc4cats.example
 
 import cats.Applicative
@@ -59,16 +61,14 @@ object CalcClient {
 
   // 4. Make some calls
 
-  // an example function with an effect
+  // a dummy function with an effect
   def printToConsole[F[_]: Applicative, A](a: A): F[Unit] =
     Applicative[F].pure(())
 
   def run[F[_]](using MonadError[F, Throwable]): EitherT[F, RpcCallError[Err], (Int, Int)] =
-    call((add(2, 3), mul(5, 8)))
-      .flatMap { (a, b) =>
-        call(div(b, a)).flatMap { a =>
-          liftF(printToConsole(a)) *> pure(a)
-        }
+    call((add(2, 3), mul(5, 8))).flatMap { (a, b) =>
+      call(div(b, a)).flatMap { a =>
+        liftF(printToConsole(a)) *> pure(a)
       }
-      .runWith[Err](send)
+    }.runWith[Err](send)
 }
