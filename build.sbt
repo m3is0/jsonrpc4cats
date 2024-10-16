@@ -152,7 +152,7 @@ lazy val docs = project
         )
         .site.footer(
           Text("jsonrpc4cats is designed and developed by "),
-          SpanLink.external("https://github.com/m3is0")(Literal("m3is0"))
+          SpanLink.external("https://github.com/m3is0/jsonrpc4cats")(Literal("m3is0"))
         )
         .build
     }
