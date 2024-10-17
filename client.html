@@ -69,6 +69,7 @@
   <ul class="nav-list">
     <li class="level1 nav-leaf"><a href="server.html">Creating a Server</a></li>
     <li class="level1 active nav-leaf"><a href="#">Creating a Client</a></li>
+    <li class="level1 nav-leaf"><a href="http4s.html">Http4s Integration</a></li>
   </ul>
 
 </nav>
@@ -146,24 +147,22 @@
 
   </span><span class="comment">// 4. Make some calls
 </span><span>
-  </span><span class="comment">// an example function with an effect
+  </span><span class="comment">// a dummy function with an effect
 </span><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">printToConsole</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Applicative</span><span>, </span><span class="type-name">A</span><span>](</span><span class="identifier">a</span><span>: </span><span class="type-name">A</span><span>): </span><span class="type-name">F</span><span>[</span><span class="type-name">Unit</span><span>] =
     </span><span class="type-name">Applicative</span><span>[</span><span class="type-name">F</span><span>].</span><span class="identifier">pure</span><span>(())
 
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="keyword">using</span><span> </span><span class="type-name">MonadError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">Throwable</span><span>]): </span><span class="type-name">EitherT</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">RpcCallError</span><span>[</span><span class="type-name">Err</span><span>], (</span><span class="type-name">Int</span><span>, </span><span class="type-name">Int</span><span>)] =
-    </span><span class="identifier">call</span><span>((</span><span class="identifier">add</span><span>(</span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>), </span><span class="identifier">mul</span><span>(</span><span class="number-literal">5</span><span>, </span><span class="number-literal">8</span><span>)))
-      .</span><span class="identifier">flatMap</span><span> { (</span><span class="identifier">a</span><span>, </span><span class="identifier">b</span><span>) =&gt;
-        </span><span class="identifier">call</span><span>(</span><span class="identifier">div</span><span>(</span><span class="identifier">b</span><span>, </span><span class="identifier">a</span><span>)).</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">a</span><span> =&gt;
-          </span><span class="identifier">liftF</span><span>(</span><span class="identifier">printToConsole</span><span>(</span><span class="identifier">a</span><span>)) *&gt; </span><span class="identifier">pure</span><span>(</span><span class="identifier">a</span><span>)
-        }
+    </span><span class="identifier">call</span><span>((</span><span class="identifier">add</span><span>(</span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>), </span><span class="identifier">mul</span><span>(</span><span class="number-literal">5</span><span>, </span><span class="number-literal">8</span><span>))).</span><span class="identifier">flatMap</span><span> { (</span><span class="identifier">a</span><span>, </span><span class="identifier">b</span><span>) =&gt;
+      </span><span class="identifier">call</span><span>(</span><span class="identifier">div</span><span>(</span><span class="identifier">b</span><span>, </span><span class="identifier">a</span><span>)).</span><span class="identifier">flatMap</span><span> { </span><span class="identifier">a</span><span> =&gt;
+        </span><span class="identifier">liftF</span><span>(</span><span class="identifier">printToConsole</span><span>(</span><span class="identifier">a</span><span>)) *&gt; </span><span class="identifier">pure</span><span>(</span><span class="identifier">a</span><span>)
       }
-      .</span><span class="identifier">runWith</span><span>[</span><span class="type-name">Err</span><span>](</span><span class="identifier">send</span><span>)
+    }.</span><span class="identifier">runWith</span><span>[</span><span class="type-name">Err</span><span>](</span><span class="identifier">send</span><span>)
 }</span></code></pre>
 
         
 <hr class="footer-rule"/>
 <footer>
-  jsonrpc4cats is designed and developed by <a href="https://github.com/m3is0"><code>m3is0</code></a>
+  jsonrpc4cats is designed and developed by <a href="https://github.com/m3is0/jsonrpc4cats"><code>m3is0</code></a>
 </footer>
 
 
