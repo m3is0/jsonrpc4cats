@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion := "0.4"
+ThisBuild / tlBaseVersion := "0.5"
 
 ThisBuild / organization := "io.github.m3is0"
 ThisBuild / organizationName := "m3is0"
