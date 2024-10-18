@@ -15,7 +15,7 @@
  */
 
 /*
- * Routing implementation is based on https://github.com/milessabin/shapeless/blob/cb23c76516f3792659bf88809314e972fd6fb5dc/examples/src/main/scala/shapeless/examples/router.scala
+ * The routing implementation is based on https://github.com/milessabin/shapeless/blob/cb23c76516f3792659bf88809314e972fd6fb5dc/examples/src/main/scala/shapeless/examples/router.scala
  * Copyright (c) 2011 Miles Sabin
  */
 
