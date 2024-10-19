@@ -126,6 +126,7 @@ lazy val example = crossProject(JSPlatform, JVMPlatform)
     name := "jsonrpc4cats-example",
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % CatsV,
+      "io.circe" %%% "circe-generic" % CirceV,
       "org.scalameta" %%% "munit" % MunitV % Test,
       "org.typelevel" %%% "munit-cats-effect-3" % MunitCatsEffectV % Test
     )

@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-Add the following dependencies to your ```build.sbt```:
+Add the following dependencies to your `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
   "io.github.m3is0" %% "jsonrpc4cats-circe" % "@VERSION@",

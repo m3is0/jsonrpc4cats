@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-Add the following dependencies to your ```build.sbt```:
+Add the following dependencies to your `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
   "io.github.m3is0" %% "jsonrpc4cats-circe" % "@VERSION@",
@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
 
 ## A Basic Example
 
-An example showing how to integrate ```jsonrpc4cats``` with ```http4s``` and its built-in authentication:
+An example showing how to integrate `jsonrpc4cats` with `http4s` and its built-in authentication:
 ```scala
 package jsonrpc4cats.example
 
@@ -88,6 +88,7 @@ object Http4sApp {
 
 ```
 
+
 ## Request Requirements
 
 - The request method must be 'POST'
@@ -101,6 +102,4 @@ object Http4sApp {
 - '401 Unauthorized' if the action is not authorized (controlled by the application)
 - '202 Accepted' for empty responses, when all request objects are JSON-RPC notifications
 - '200 OK' for all JSON-RPC responses, including errors
-
-
 
