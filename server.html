@@ -83,6 +83,9 @@
   <ul class="nav-list">
     <li class="level1 nav-leaf"><a href="#dependencies">Dependencies</a></li>
     <li class="level1 nav-leaf"><a href="#a-basic-example">A Basic Example</a></li>
+    <li class="level1 nav-leaf"><a href="#method-parameters">Method Parameters</a></li>
+    <li class="level1 nav-leaf"><a href="#combining-servers">Combining Servers</a></li>
+    <li class="level1 nav-leaf"><a href="#custom-types">Custom Types</a></li>
   </ul>
 
   <p class="footer"></p>
@@ -163,6 +166,93 @@
 </span><span>
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">handle</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">req</span><span>: </span><span class="type-name">String</span><span>)(</span><span class="keyword">using</span><span> </span><span class="type-name">MonadError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">Throwable</span><span>]): </span><span class="type-name">OptionT</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">Json</span><span>] =
     </span><span class="identifier">api</span><span>[</span><span class="type-name">F</span><span>].</span><span class="identifier">handle</span><span>[</span><span class="type-name">Json</span><span>](</span><span class="identifier">req</span><span>)
+}</span></code></pre>
+        
+        <h2 id="method-parameters" class="section"><a class="anchor-link left" href="#method-parameters"><i class="icofont-laika link">&#xef71;</i></a>Method Parameters</h2>
+        <p>Method parameters must be of a product type:</p>
+        <pre><code class="nohighlight"><span class="keyword">package</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="identifier">example</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">Applicative</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="type-name">RpcErr</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="identifier">server</span><span>.*
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">HelloServer</span><span> {
+
+  </span><span class="comment">// a method without parameters
+</span><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">hello</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="keyword">using</span><span> </span><span class="type-name">F</span><span>: </span><span class="type-name">Applicative</span><span>[</span><span class="type-name">F</span><span>]) =
+    </span><span class="type-name">RpcMethod</span><span>.</span><span class="identifier">instance</span><span>[</span><span class="type-name">F</span><span>, </span><span class="string-literal">&quot;hello.hello&quot;</span><span>, </span><span class="type-name">EmptyTuple</span><span>, </span><span class="type-name">RpcErr</span><span>, </span><span class="type-name">String</span><span>] { </span><span class="identifier">_</span><span> =&gt;
+      </span><span class="type-name">F</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="type-name">Right</span><span>(</span><span class="string-literal">&quot;Hello!&quot;</span><span>))
+    }
+
+  </span><span class="comment">// a method with a single non-product parameter
+</span><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">helloName</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="keyword">using</span><span> </span><span class="type-name">F</span><span>: </span><span class="type-name">Applicative</span><span>[</span><span class="type-name">F</span><span>]) =
+    </span><span class="type-name">RpcMethod</span><span>.</span><span class="identifier">instance</span><span>[</span><span class="type-name">F</span><span>, </span><span class="string-literal">&quot;hello.name&quot;</span><span>, </span><span class="type-name">Tuple1</span><span>[</span><span class="type-name">String</span><span>], </span><span class="type-name">RpcErr</span><span>, </span><span class="type-name">String</span><span>] { </span><span class="identifier">params</span><span> =&gt;
+      </span><span class="type-name">F</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="type-name">Right</span><span>(</span><span class="string-literal">s&quot;Hello, </span><span class="substitution">${params.head}</span><span class="string-literal">!&quot;</span><span>))
+    }
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">api</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Applicative</span><span>] =
+    </span><span class="type-name">RpcServer</span><span>
+      .</span><span class="identifier">add</span><span>(</span><span class="identifier">hello</span><span>[</span><span class="type-name">F</span><span>])
+      .</span><span class="identifier">add</span><span>(</span><span class="identifier">helloName</span><span>[</span><span class="type-name">F</span><span>])
+}</span></code></pre>
+        
+        <h2 id="combining-servers" class="section"><a class="anchor-link left" href="#combining-servers"><i class="icofont-laika link">&#xef71;</i></a>Combining Servers</h2>
+        <p>Two servers can be combined as shown below:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">package</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="identifier">example</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">Applicative</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">HelloCalc</span><span> {
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">api</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Applicative</span><span>] =
+    </span><span class="type-name">HelloServer</span><span>.</span><span class="identifier">api</span><span>[</span><span class="type-name">F</span><span>].</span><span class="identifier">extend</span><span>(</span><span class="type-name">CalcServer</span><span>.</span><span class="identifier">api</span><span>[</span><span class="type-name">F</span><span>])
+}</span></code></pre>
+        
+        <h2 id="custom-types" class="section"><a class="anchor-link left" href="#custom-types"><i class="icofont-laika link">&#xef71;</i></a>Custom Types</h2>
+        <p>To use custom types, provide codecs for the JSON library you are using:</p>
+        <pre><code class="nohighlight"><span class="keyword">package</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="identifier">example</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">Applicative</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">MonadError</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">data</span><span>.</span><span class="type-name">OptionT</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="type-name">Json</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="type-name">Encoder</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="type-name">Decoder</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="identifier">syntax</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="identifier">generic</span><span>.</span><span class="identifier">semiauto</span><span>.*
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="keyword">given</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="identifier">server</span><span>.*
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">CustomTypes</span><span> {
+
+  </span><span class="keyword">sealed</span><span> </span><span class="keyword">trait</span><span> </span><span class="type-name">DivError</span><span>
+  </span><span class="keyword">final</span><span> </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">DivByZero</span><span>(</span><span class="identifier">divident</span><span>: </span><span class="type-name">Int</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">DivError</span><span>
+
+  </span><span class="keyword">given</span><span> </span><span class="identifier">toRpcError</span><span>: </span><span class="type-name">ToRpcError</span><span>[</span><span class="type-name">Json</span><span>, </span><span class="type-name">DivError</span><span>] =
+    </span><span class="type-name">ToRpcError</span><span>.</span><span class="identifier">instance</span><span> { </span><span class="keyword">case</span><span> </span><span class="type-name">DivByZero</span><span>(</span><span class="identifier">a</span><span>) =&gt;
+      </span><span class="type-name">RpcError</span><span>(</span><span class="type-name">RpcErrorCode</span><span>(</span><span class="number-literal">1000</span><span>), </span><span class="string-literal">&quot;Division by zero&quot;</span><span>, </span><span class="type-name">Some</span><span>(</span><span class="type-name">Map</span><span>(</span><span class="string-literal">&quot;divident&quot;</span><span> -&gt; </span><span class="identifier">a</span><span>).</span><span class="identifier">asJson</span><span>))
+    }
+
+  </span><span class="keyword">final</span><span> </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">DivParams</span><span>(</span><span class="identifier">divident</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">divisor</span><span>: </span><span class="type-name">Int</span><span>)
+  </span><span class="keyword">given</span><span> </span><span class="identifier">paramsDecoder</span><span>: </span><span class="type-name">Decoder</span><span>[</span><span class="type-name">DivParams</span><span>] = </span><span class="identifier">deriveDecoder</span><span>[</span><span class="type-name">DivParams</span><span>]
+
+  </span><span class="keyword">final</span><span> </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">DivResult</span><span>(</span><span class="identifier">quotient</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">remainder</span><span>: </span><span class="type-name">Int</span><span>)
+  </span><span class="keyword">given</span><span> </span><span class="identifier">resultEncoder</span><span>: </span><span class="type-name">Encoder</span><span>[</span><span class="type-name">DivResult</span><span>] = </span><span class="identifier">deriveEncoder</span><span>[</span><span class="type-name">DivResult</span><span>]
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">div</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="keyword">using</span><span> </span><span class="type-name">F</span><span>: </span><span class="type-name">Applicative</span><span>[</span><span class="type-name">F</span><span>]) =
+    </span><span class="type-name">RpcMethod</span><span>.</span><span class="identifier">instance</span><span>[</span><span class="type-name">F</span><span>, </span><span class="string-literal">&quot;custom.div&quot;</span><span>, </span><span class="type-name">DivParams</span><span>, </span><span class="type-name">DivError</span><span>, </span><span class="type-name">DivResult</span><span>] {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">DivParams</span><span>(</span><span class="identifier">a</span><span>, </span><span class="number-literal">0</span><span>) =&gt;
+        </span><span class="type-name">F</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="type-name">Left</span><span>(</span><span class="type-name">DivByZero</span><span>(</span><span class="identifier">a</span><span>)))
+      </span><span class="keyword">case</span><span> </span><span class="type-name">DivParams</span><span>(</span><span class="identifier">a</span><span>, </span><span class="identifier">b</span><span>) =&gt;
+        </span><span class="type-name">F</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="type-name">Right</span><span>(</span><span class="type-name">DivResult</span><span>(</span><span class="identifier">a</span><span> / </span><span class="identifier">b</span><span>, </span><span class="identifier">a</span><span> % </span><span class="identifier">b</span><span>)))
+    }
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">handle</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="identifier">req</span><span>: </span><span class="type-name">String</span><span>)(</span><span class="keyword">using</span><span> </span><span class="type-name">MonadError</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">Throwable</span><span>]): </span><span class="type-name">OptionT</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">Json</span><span>] =
+    </span><span class="type-name">RpcServer</span><span>.</span><span class="identifier">add</span><span>(</span><span class="identifier">div</span><span>[</span><span class="type-name">F</span><span>]).</span><span class="identifier">handle</span><span>[</span><span class="type-name">Json</span><span>](</span><span class="identifier">req</span><span>)
 }</span></code></pre>
 
         
