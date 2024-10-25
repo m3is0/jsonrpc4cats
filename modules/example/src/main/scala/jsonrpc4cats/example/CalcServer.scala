@@ -33,8 +33,9 @@ object CalcServer {
   case object DivByZero extends Err
 
   given errToRpcError[J]: ToRpcError[J, Err] =
-    ToRpcError.instance { case DivByZero =>
-      RpcError(RpcErrorCode(1000), "Division by zero")
+    ToRpcError.instance {
+      case DivByZero =>
+        RpcError(RpcErrorCode(1000), "Division by zero")
     }
 
   // 2. Define methods

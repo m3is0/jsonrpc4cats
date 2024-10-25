@@ -35,8 +35,9 @@ object CustomTypes {
   final case class DivByZero(divident: Int) extends DivError
 
   given toRpcError: ToRpcError[Json, DivError] =
-    ToRpcError.instance { case DivByZero(a) =>
-      RpcError(RpcErrorCode(1000), "Division by zero", Some(Map("divident" -> a).asJson))
+    ToRpcError.instance {
+      case DivByZero(a) =>
+        RpcError(RpcErrorCode(1000), "Division by zero", Some(Map("divident" -> a).asJson))
     }
 
   final case class DivParams(divident: Int, divisor: Int)

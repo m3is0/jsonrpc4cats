@@ -190,8 +190,9 @@ class RpcServiceTests extends CatsEffectSuite {
   object RpcWithAuth {
 
     def calcSum[F[_]](using F: Applicative[F]) =
-      RpcMethod.withAuthIf[F, User, "calc.sum", (Int, Int), RpcErr, Long](_.role == "admin") { case (_, (a, b)) =>
-        F.pure(Right(a.toLong + b.toLong))
+      RpcMethod.withAuthIf[F, User, "calc.sum", (Int, Int), RpcErr, Long](_.role == "admin") {
+        case (_, (a, b)) =>
+          F.pure(Right(a.toLong + b.toLong))
       }
 
     def api[F[_]: Applicative] = RpcServer.add(calcSum[F])

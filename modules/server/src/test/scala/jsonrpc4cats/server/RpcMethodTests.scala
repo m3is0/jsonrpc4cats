@@ -33,16 +33,18 @@ class RpcMethodTests extends FunSuite {
   }
 
   test("RpcMethod.withAuth") {
-    val m = RpcMethod.withAuth[Id, User, "abc", (Int, Int), Unit, String] { case (user, (a, b)) =>
-      Right(s"${user.role}_${a}_${b}")
+    val m = RpcMethod.withAuth[Id, User, "abc", (Int, Int), Unit, String] {
+      case (user, (a, b)) =>
+        Right(s"${user.role}_${a}_${b}")
     }
 
     assertEquals(m((1, 2)).run(User("admin")).value, Some(Right("admin_1_2")))
   }
 
   test("RpcMethod.withAuthIf") {
-    val m = RpcMethod.withAuthIf[Id, User, "abc", (Int, Int), Unit, String](_.role == "admin") { case (user, (a, b)) =>
-      Right(s"${user.role}_${a}_${b}")
+    val m = RpcMethod.withAuthIf[Id, User, "abc", (Int, Int), Unit, String](_.role == "admin") {
+      case (user, (a, b)) =>
+        Right(s"${user.role}_${a}_${b}")
     }
 
     assertEquals(m((1, 2)).run(User("admin")).value, Some(Right("admin_1_2")))
