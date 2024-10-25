@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// scalafmt: { maxColumn = 90 }
-
 package jsonrpc4cats.example
 
 import cats.Applicative

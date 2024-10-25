@@ -33,8 +33,9 @@ object CalcServer {
   case object DivByZero extends Err
 
   given errToRpcError[J]: ToRpcError[J, Err] =
-    ToRpcError.instance { case DivByZero =>
-      RpcError(RpcErrorCode(1000), "Division by zero")
+    ToRpcError.instance {
+      case DivByZero =>
+        RpcError(RpcErrorCode(1000), "Division by zero")
     }
 
   // 2. Define methods
@@ -137,12 +138,11 @@ package jsonrpc4cats.example
 import cats.Applicative
 import cats.MonadError
 import cats.data.OptionT
-
-import io.circe.Json
-import io.circe.Encoder
 import io.circe.Decoder
-import io.circe.syntax.*
+import io.circe.Encoder
+import io.circe.Json
 import io.circe.generic.semiauto.*
+import io.circe.syntax.*
 
 import jsonrpc4cats.*
 import jsonrpc4cats.circe.given
@@ -154,8 +154,9 @@ object CustomTypes {
   final case class DivByZero(divident: Int) extends DivError
 
   given toRpcError: ToRpcError[Json, DivError] =
-    ToRpcError.instance { case DivByZero(a) =>
-      RpcError(RpcErrorCode(1000), "Division by zero", Some(Map("divident" -> a).asJson))
+    ToRpcError.instance {
+      case DivByZero(a) =>
+        RpcError(RpcErrorCode(1000), "Division by zero", Some(Map("divident" -> a).asJson))
     }
 
   final case class DivParams(divident: Int, divisor: Int)
