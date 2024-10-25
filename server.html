@@ -124,8 +124,9 @@
   </span><span class="keyword">case</span><span> </span><span class="keyword">object</span><span> </span><span class="type-name">DivByZero</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">Err</span><span>
 
   </span><span class="keyword">given</span><span> </span><span class="identifier">errToRpcError</span><span>[</span><span class="type-name">J</span><span>]: </span><span class="type-name">ToRpcError</span><span>[</span><span class="type-name">J</span><span>, </span><span class="type-name">Err</span><span>] =
-    </span><span class="type-name">ToRpcError</span><span>.</span><span class="identifier">instance</span><span> { </span><span class="keyword">case</span><span> </span><span class="type-name">DivByZero</span><span> =&gt;
-      </span><span class="type-name">RpcError</span><span>(</span><span class="type-name">RpcErrorCode</span><span>(</span><span class="number-literal">1000</span><span>), </span><span class="string-literal">&quot;Division by zero&quot;</span><span>)
+    </span><span class="type-name">ToRpcError</span><span>.</span><span class="identifier">instance</span><span> {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">DivByZero</span><span> =&gt;
+        </span><span class="type-name">RpcError</span><span>(</span><span class="type-name">RpcErrorCode</span><span>(</span><span class="number-literal">1000</span><span>), </span><span class="string-literal">&quot;Division by zero&quot;</span><span>)
     }
 
   </span><span class="comment">// 2. Define methods
@@ -216,12 +217,11 @@
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">Applicative</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">MonadError</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">data</span><span>.</span><span class="type-name">OptionT</span><span>
-
-</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="type-name">Json</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="type-name">Encoder</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="type-name">Decoder</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="identifier">syntax</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="type-name">Encoder</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="type-name">Json</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="identifier">generic</span><span>.</span><span class="identifier">semiauto</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="identifier">syntax</span><span>.*
 
 </span><span class="keyword">import</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.*
 </span><span class="keyword">import</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="identifier">circe</span><span>.</span><span class="keyword">given</span><span>
@@ -233,8 +233,9 @@
   </span><span class="keyword">final</span><span> </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">DivByZero</span><span>(</span><span class="identifier">divident</span><span>: </span><span class="type-name">Int</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">DivError</span><span>
 
   </span><span class="keyword">given</span><span> </span><span class="identifier">toRpcError</span><span>: </span><span class="type-name">ToRpcError</span><span>[</span><span class="type-name">Json</span><span>, </span><span class="type-name">DivError</span><span>] =
-    </span><span class="type-name">ToRpcError</span><span>.</span><span class="identifier">instance</span><span> { </span><span class="keyword">case</span><span> </span><span class="type-name">DivByZero</span><span>(</span><span class="identifier">a</span><span>) =&gt;
-      </span><span class="type-name">RpcError</span><span>(</span><span class="type-name">RpcErrorCode</span><span>(</span><span class="number-literal">1000</span><span>), </span><span class="string-literal">&quot;Division by zero&quot;</span><span>, </span><span class="type-name">Some</span><span>(</span><span class="type-name">Map</span><span>(</span><span class="string-literal">&quot;divident&quot;</span><span> -&gt; </span><span class="identifier">a</span><span>).</span><span class="identifier">asJson</span><span>))
+    </span><span class="type-name">ToRpcError</span><span>.</span><span class="identifier">instance</span><span> {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">DivByZero</span><span>(</span><span class="identifier">a</span><span>) =&gt;
+        </span><span class="type-name">RpcError</span><span>(</span><span class="type-name">RpcErrorCode</span><span>(</span><span class="number-literal">1000</span><span>), </span><span class="string-literal">&quot;Division by zero&quot;</span><span>, </span><span class="type-name">Some</span><span>(</span><span class="type-name">Map</span><span>(</span><span class="string-literal">&quot;divident&quot;</span><span> -&gt; </span><span class="identifier">a</span><span>).</span><span class="identifier">asJson</span><span>))
     }
 
   </span><span class="keyword">final</span><span> </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">DivParams</span><span>(</span><span class="identifier">divident</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">divisor</span><span>: </span><span class="type-name">Int</span><span>)
