@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package jsonrpc4cats.server.internal
+package jsonrpc4cats.server
 
 import cats.Applicative
 import cats.data.Kleisli
@@ -26,14 +26,14 @@ object Auth {
 
   def liftF[U]: LiftFPartiallyApplied[U] = new LiftFPartiallyApplied[U]
 
-  private[internal] final class LiftFPartiallyApplied[U](val dummie: Boolean = true) {
+  private[server] final class LiftFPartiallyApplied[U](val dummie: Boolean = true) {
     def apply[F[_]: Applicative, A](fa: F[A]): Auth[F, U, A] =
       Kleisli(_ => OptionT.liftF(fa))
   }
 
   def allowIf[U]: AllowIfPartiallyApplied[U] = new AllowIfPartiallyApplied[U]
 
-  private[internal] final class AllowIfPartiallyApplied[U](val dummie: Boolean = true) {
+  private[server] final class AllowIfPartiallyApplied[U](val dummie: Boolean = true) {
     def apply[F[_]: Applicative, A](cond: U => Boolean)(f: U => F[A]): Auth[F, U, A] =
       Kleisli { u =>
         cond(u) match {
@@ -45,7 +45,7 @@ object Auth {
 
   def allowAll[U]: AllowAllPartiallyApplied[U] = new AllowAllPartiallyApplied[U]
 
-  private[internal] final class AllowAllPartiallyApplied[U](val dummie: Boolean = true) {
+  private[server] final class AllowAllPartiallyApplied[U](val dummie: Boolean = true) {
     def apply[F[_]: Applicative, A](f: U => F[A]): Auth[F, U, A] =
       Kleisli(u => OptionT.liftF(f(u)))
   }

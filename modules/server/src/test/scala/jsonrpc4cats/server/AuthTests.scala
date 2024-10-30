@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package jsonrpc4cats.server.internal
+package jsonrpc4cats.server
 
 import munit.FunSuite
 
@@ -26,22 +26,31 @@ class AuthTests extends FunSuite {
 
   final case class User(role: String)
 
-  test("allowAll test") {
+  test("Auth.allowAll test") {
 
     val action: Auth[Id, User, String] =
-      allowAll[User](u => Id(u.role))
+      allowAll(u => Id(u.role))
 
     assert(action.run(User("user")).value == Some("user"))
 
   }
 
-  test("allowIf test") {
+  test("Auth.allowIf test") {
 
     val action: Auth[Id, User, String] =
       allowIf[User](_.role == "admin")(u => Id(u.role))
 
     assert(action.run(User("admin")).value == Some("admin"))
     assert(action.run(User("user")).value == None)
+
+  }
+
+  test("Auth.liftF test") {
+
+    val action: Auth[Id, User, Int] =
+      liftF(Id(1))
+
+    assert(action.run(User("user")).value == Some(1))
 
   }
 

@@ -27,8 +27,8 @@ import org.http4s.dsl.io.*
 import org.http4s.headers.`Content-Type`
 
 import jsonrpc4cats.json.JsonPrinter
+import jsonrpc4cats.server.Auth
 import jsonrpc4cats.server.RpcServer
-import jsonrpc4cats.server.internal.Auth
 import jsonrpc4cats.server.internal.Coproduct
 import jsonrpc4cats.server.internal.RequestHandler
 

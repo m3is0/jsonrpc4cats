@@ -44,4 +44,13 @@ class HelloServerTests extends FunSuite {
     assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
   }
 
+  test("hello.name1") {
+    val req = """{"jsonrpc":"2.0","method":"hello.name1","params":["Jack"],"id":1}"""
+    val exp = """{"jsonrpc":"2.0","result":"Hello, Jack!","id":1}"""
+
+    val res = HelloServer.api[Eff].handle[Json](req)
+
+    assertEquals(res.map(_.noSpaces).value, Right(Some(exp)))
+  }
+
 }

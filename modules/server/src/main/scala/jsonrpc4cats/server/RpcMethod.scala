@@ -18,8 +18,6 @@ package jsonrpc4cats.server
 
 import cats.Applicative
 
-import jsonrpc4cats.server.internal.Auth
-
 trait RpcMethod[F[_], K <: String & Singleton, P <: Product, E, R] {
   def apply(p: P): F[Either[E, R]]
 }

@@ -185,12 +185,12 @@ class RpcServiceTests extends CatsEffectSuite {
    * RpcService.authedRoutes tests
    */
 
-  final case class User(role: String)
+  final case class User(isAdmin: Boolean)
 
   object RpcWithAuth {
 
     def calcSum[F[_]](using F: Applicative[F]) =
-      RpcMethod.withAuthIf[F, User, "calc.sum", (Int, Int), RpcErr, Long](_.role == "admin") {
+      RpcMethod.withAuthIf[F, User, "calc.sum", (Int, Int), RpcErr, Long](_.isAdmin) {
         case (_, (a, b)) =>
           F.pure(Right(a.toLong + b.toLong))
       }
@@ -208,9 +208,9 @@ class RpcServiceTests extends CatsEffectSuite {
 
   }
 
-  commonTests("RpcService.authedRoutes", RpcWithAuth.service(User("admin")))
+  commonTests("RpcService.authedRoutes", RpcWithAuth.service(User(true)))
 
-  onErrorTest("RpcService.authedRoutes", RpcWithAuth.serviceWithLogger(User("admin")))
+  onErrorTest("RpcService.authedRoutes", RpcWithAuth.serviceWithLogger(User(true)))
 
   test("RpcService.authedRoutes: An unauthorized request") {
 
@@ -220,7 +220,7 @@ class RpcServiceTests extends CatsEffectSuite {
       .withEntity(req)
       .withContentType(`Content-Type`(MediaType.application.json))
 
-    RpcWithAuth.service(User("user")).run(rio).map { res =>
+    RpcWithAuth.service(User(false)).run(rio).map { res =>
       assert(res.status == Status.Unauthorized)
     }
 

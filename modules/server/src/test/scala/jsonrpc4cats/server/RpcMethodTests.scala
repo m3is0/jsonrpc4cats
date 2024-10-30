@@ -22,9 +22,10 @@ import cats.Id
 
 class RpcMethodTests extends FunSuite {
 
-  final case class User(role: String)
+  final case class User(name: String, isAdmin: Boolean)
 
   test("RpcMethod.instance") {
+
     val m = RpcMethod.instance[Id, "abc", (Int, Int), Unit, Int] { (a, b) =>
       Right(a + b)
     }
@@ -32,23 +33,62 @@ class RpcMethodTests extends FunSuite {
     assertEquals(m((1, 2)), Right(3))
   }
 
+  test("RpcMethod.instance without type parameters") {
+
+    val m: RpcMethod[Id, "abc", (Int, Int), Unit, Int] =
+      RpcMethod.instance { (a, b) =>
+        Right(a + b)
+      }
+
+    assertEquals(m((1, 2)), Right(3))
+  }
+
   test("RpcMethod.withAuth") {
+
     val m = RpcMethod.withAuth[Id, User, "abc", (Int, Int), Unit, String] {
       case (user, (a, b)) =>
-        Right(s"${user.role}_${a}_${b}")
+        Right(s"${user.name}_${a}_${b}")
     }
 
-    assertEquals(m((1, 2)).run(User("admin")).value, Some(Right("admin_1_2")))
+    assertEquals(m((1, 2)).run(User("user", false)).value, Some(Right("user_1_2")))
+  }
+
+  test("RpcMethod.withAuth without type parameters") {
+
+    type AuthF = [x] =>> Auth[Id, User, x]
+
+    val m: RpcMethod[AuthF, "abc", (Int, Int), Unit, String] =
+      RpcMethod.withAuth {
+        case (user, (a, b)) =>
+          Right(s"${user.name}_${a}_${b}")
+      }
+
+    assertEquals(m((1, 2)).run(User("user", false)).value, Some(Right("user_1_2")))
   }
 
   test("RpcMethod.withAuthIf") {
-    val m = RpcMethod.withAuthIf[Id, User, "abc", (Int, Int), Unit, String](_.role == "admin") {
+
+    val m = RpcMethod.withAuthIf[Id, User, "abc", (Int, Int), Unit, String](_.isAdmin) {
       case (user, (a, b)) =>
-        Right(s"${user.role}_${a}_${b}")
+        Right(s"${user.name}_${a}_${b}")
     }
 
-    assertEquals(m((1, 2)).run(User("admin")).value, Some(Right("admin_1_2")))
-    assertEquals(m((1, 2)).run(User("user")).value, None)
+    assertEquals(m((1, 2)).run(User("user", true)).value, Some(Right("user_1_2")))
+    assertEquals(m((1, 2)).run(User("user", false)).value, None)
+  }
+
+  test("RpcMethod.withAuthIf without type parameters") {
+
+    type AuthF = [x] =>> Auth[Id, User, x]
+
+    val m: RpcMethod[AuthF, "abc", (Int, Int), Unit, String] =
+      RpcMethod.withAuthIf((u: User) => u.isAdmin) {
+        case (user, (a, b)) =>
+          Right(s"${user.name}_${a}_${b}")
+      }
+
+    assertEquals(m((1, 2)).run(User("user", true)).value, Some(Right("user_1_2")))
+    assertEquals(m((1, 2)).run(User("user", false)).value, None)
   }
 
 }
