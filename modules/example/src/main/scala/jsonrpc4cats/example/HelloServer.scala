@@ -23,7 +23,7 @@ import jsonrpc4cats.server.*
 
 object HelloServer {
 
-  // a method without params
+  // a method without parameters
   def hello[F[_]](using F: Applicative[F]) =
     RpcMethod.instance[F, "hello.hello", EmptyTuple, RpcErr, String] { _ =>
       F.pure(Right("Hello!"))

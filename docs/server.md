@@ -105,10 +105,17 @@ object HelloServer {
       F.pure(Right(s"Hello, ${params.head}!"))
     }
 
+  // a method with a single non-product parameter, using the RpcMethod1 API
+  def helloName1[F[_]](using F: Applicative[F]) =
+    RpcMethod1.instance[F, "hello.name1", String, RpcErr, String] { name =>
+      F.pure(Right(s"Hello, ${name}!"))
+    }
+
   def api[F[_]: Applicative] =
     RpcServer
       .add(hello[F])
       .add(helloName[F])
+      .add(helloName1[F])
 }
 
 ```
