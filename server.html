@@ -192,22 +192,30 @@
       </span><span class="type-name">F</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="type-name">Right</span><span>(</span><span class="string-literal">s&quot;Hello, </span><span class="substitution">${params.head}</span><span class="string-literal">!&quot;</span><span>))
     }
 
+  </span><span class="comment">// a method with a single non-product parameter, using the RpcMethod1 API
+</span><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">helloName1</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]](</span><span class="keyword">using</span><span> </span><span class="type-name">F</span><span>: </span><span class="type-name">Applicative</span><span>[</span><span class="type-name">F</span><span>]) =
+    </span><span class="type-name">RpcMethod1</span><span>.</span><span class="identifier">instance</span><span>[</span><span class="type-name">F</span><span>, </span><span class="string-literal">&quot;hello.name1&quot;</span><span>, </span><span class="type-name">String</span><span>, </span><span class="type-name">RpcErr</span><span>, </span><span class="type-name">String</span><span>] { </span><span class="identifier">name</span><span> =&gt;
+      </span><span class="type-name">F</span><span>.</span><span class="identifier">pure</span><span>(</span><span class="type-name">Right</span><span>(</span><span class="string-literal">s&quot;Hello, </span><span class="substitution">${name}</span><span class="string-literal">!&quot;</span><span>))
+    }
+
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">api</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Applicative</span><span>] =
     </span><span class="type-name">RpcServer</span><span>
       .</span><span class="identifier">add</span><span>(</span><span class="identifier">hello</span><span>[</span><span class="type-name">F</span><span>])
       .</span><span class="identifier">add</span><span>(</span><span class="identifier">helloName</span><span>[</span><span class="type-name">F</span><span>])
+      .</span><span class="identifier">add</span><span>(</span><span class="identifier">helloName1</span><span>[</span><span class="type-name">F</span><span>])
 }</span></code></pre>
         
         <h2 id="combining-servers" class="section"><a class="anchor-link left" href="#combining-servers"><i class="icofont-laika link">&#xef71;</i></a>Combining Servers</h2>
-        <p>Two servers can be combined as shown below:</p>
+        <p>Servers can be combined as shown below:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">package</span><span> </span><span class="identifier">jsonrpc4cats</span><span>.</span><span class="identifier">example</span><span>
 
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="type-name">Applicative</span><span>
 
 </span><span class="keyword">object</span><span> </span><span class="type-name">HelloCalc</span><span> {
 
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">api</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Applicative</span><span>] =
-    </span><span class="type-name">HelloServer</span><span>.</span><span class="identifier">api</span><span>[</span><span class="type-name">F</span><span>].</span><span class="identifier">extend</span><span>(</span><span class="type-name">CalcServer</span><span>.</span><span class="identifier">api</span><span>[</span><span class="type-name">F</span><span>])
+  </span><span class="comment">// combining servers using the :+: operator, which is an alias for the &#39;extend&#39; method
+</span><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">api</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Applicative</span><span>] =
+    </span><span class="type-name">HelloServer</span><span>.</span><span class="identifier">api</span><span>[</span><span class="type-name">F</span><span>] :+: </span><span class="type-name">CalcServer</span><span>.</span><span class="identifier">api</span><span>[</span><span class="type-name">F</span><span>]
 }</span></code></pre>
         
         <h2 id="custom-types" class="section"><a class="anchor-link left" href="#custom-types"><i class="icofont-laika link">&#xef71;</i></a>Custom Types</h2>
