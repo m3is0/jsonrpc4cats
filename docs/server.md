@@ -122,7 +122,7 @@ object HelloServer {
 
 ## Combining Servers
 
-Two servers can be combined as shown below:
+Servers can be combined as shown below:
 ```scala
 package jsonrpc4cats.example
 
@@ -130,8 +130,9 @@ import cats.Applicative
 
 object HelloCalc {
 
+  // combining servers using the :+: operator, which is an alias for the 'extend' method
   def api[F[_]: Applicative] =
-    HelloServer.api[F].extend(CalcServer.api[F])
+    HelloServer.api[F] :+: CalcServer.api[F]
 }
 
 ```

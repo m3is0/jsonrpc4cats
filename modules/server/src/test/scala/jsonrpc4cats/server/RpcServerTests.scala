@@ -69,7 +69,6 @@ class RpcServerTests extends FunSuite {
     assert(srv("m2").isDefined)
   }
 
-
   test("RpcServer.apply test") {
 
     val srv = RpcServer.add(noop["m1"])
