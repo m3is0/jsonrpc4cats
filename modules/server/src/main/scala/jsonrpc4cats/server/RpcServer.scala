@@ -60,38 +60,44 @@ object RpcServer {
         else None
     }
 
-  extension [F[_], L <: Coproduct](srvL: RpcServer[F, L]) {
-    inline def extend[R <: Coproduct](srvR: RpcServer[F, R])(using
-      ex: ExtendBy[L, R],
-      ev: DistinctMethods[F, Extend[L, R]] =:= true
-    ): RpcServer[F, Extend[L, R]] =
-      new RpcServer[F, Extend[L, R]] {
+  extension [F[_], A <: Coproduct](sa: RpcServer[F, A]) {
+    inline def extend[B <: Coproduct](sb: RpcServer[F, B])(using
+      ex: ExtendBy[A, B],
+      ev: DistinctMethods[F, Extend[A, B]] =:= true
+    ): RpcServer[F, Extend[A, B]] =
+      new RpcServer[F, Extend[A, B]] {
         def apply(method: String) =
-          srvR(method) match {
+          sb(method) match {
             case Some(vb) =>
               Some(ex.left(vb))
             case _ =>
-              srvL(method).map(ex.right)
+              sa(method).map(ex.right)
           }
       }
 
-    inline def add[K <: String & Singleton, P <: Product, E, R](m: RpcMethod[F, K, P, E, R])(using
-      ex: ExtendBy[L, RpcMethod[F, K, P, E, R] :+: CNil],
-      ev: DistinctMethods[F, Extend[L, RpcMethod[F, K, P, E, R] :+: CNil]] =:= true
-    ): RpcServer[F, Extend[L, RpcMethod[F, K, P, E, R] :+: CNil]] =
-      srvL.extend(RpcServer.add[F, K, P, E, R](m))
+    inline def :+:[B <: Coproduct](sb: RpcServer[F, B])(using
+      ex: ExtendBy[A, B],
+      ev: DistinctMethods[F, Extend[A, B]] =:= true
+    ): RpcServer[F, Extend[A, B]] =
+      sa.extend(sb)
+
+    inline def add[K <: String & Singleton, P <: Product, E, B](m: RpcMethod[F, K, P, E, B])(using
+      ex: ExtendBy[A, RpcMethod[F, K, P, E, B] :+: CNil],
+      ev: DistinctMethods[F, Extend[A, RpcMethod[F, K, P, E, B] :+: CNil]] =:= true
+    ): RpcServer[F, Extend[A, RpcMethod[F, K, P, E, B] :+: CNil]] =
+      sa.extend(RpcServer.add[F, K, P, E, B](m))
   }
 
-  extension [F[_], L <: Coproduct](srvL: RpcServer[F, L])(using F: MonadError[F, Throwable]) {
+  extension [F[_], A <: Coproduct](sa: RpcServer[F, A])(using F: MonadError[F, Throwable]) {
     def handle[J](req: String)(using
-      handleRequest: RequestHandler[F, L, J]
+      handleRequest: RequestHandler[F, A, J]
     ): OptionT[F, J] =
-      OptionT(handleRequest(req, srvL, _ => F.pure(())))
+      OptionT(handleRequest(req, sa, _ => F.pure(())))
 
     def handle[J](req: String, onError: RequestHandler.OnError[F])(using
-      handleRequest: RequestHandler[F, L, J]
+      handleRequest: RequestHandler[F, A, J]
     ): OptionT[F, J] =
-      OptionT(handleRequest(req, srvL, onError))
+      OptionT(handleRequest(req, sa, onError))
   }
 
 }
