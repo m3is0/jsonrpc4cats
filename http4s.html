@@ -168,7 +168,7 @@
       </span><span class="type-name">Kleisli</span><span>(</span><span class="identifier">_</span><span> =&gt; </span><span class="type-name">OptionT</span><span>.</span><span class="identifier">pure</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="type-name">User</span><span>(</span><span class="string-literal">&quot;User123&quot;</span><span>, </span><span class="boolean-literal">false</span><span>)))
     )
 
-  </span><span class="comment">// HttpApp that can be run with Http4s
+  </span><span class="comment">// HttpApp, which can be run with Http4s
 </span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">httpApp</span><span>: </span><span class="type-name">HttpApp</span><span>[</span><span class="type-name">IO</span><span>] =
     </span><span class="type-name">Router</span><span>(
       </span><span class="string-literal">&quot;/rpc&quot;</span><span> -&gt; </span><span class="type-name">RpcService</span><span>.</span><span class="identifier">httpRoutes</span><span>[</span><span class="type-name">Json</span><span>](</span><span class="type-name">PublicRpc</span><span>.</span><span class="identifier">api</span><span>[</span><span class="type-name">IO</span><span>]),
