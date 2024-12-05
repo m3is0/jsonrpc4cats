@@ -78,7 +78,7 @@ object Http4sApp {
       Kleisli(_ => OptionT.pure[IO](User("User123", false)))
     )
 
-  // HttpApp that can be run with Http4s
+  // HttpApp, which can be run with Http4s
   val httpApp: HttpApp[IO] =
     Router(
       "/rpc" -> RpcService.httpRoutes[Json](PublicRpc.api[IO]),

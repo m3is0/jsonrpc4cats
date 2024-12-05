@@ -46,7 +46,7 @@ object RpcCall {
   extension [F[_]: Functor, J, A](call: RpcCall[F, J, A]) {
 
     /**
-     * Runs an RpcCall with a given 'Send' function and decodes errors to a specified type
+     * Runs RpcCall with the given 'Send' function and decodes errors to the specified type
      */
     def runWith[E](send: Send[F, J])(using FromRpcError[J, E]): EitherT[F, RpcCallError[E], A] =
       call.run(send).leftMap(RpcCallError.decode[J, E])
