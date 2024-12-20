@@ -23,17 +23,17 @@ type RpcMethod1[F[_], K <: String & Singleton, P, E, R] =
 
 object RpcMethod1 {
 
-  inline def instance[F[_], K <: String & Singleton, P, E, R](
+  def instance[F[_], K <: String & Singleton, P, E, R](
     f: P => F[Either[E, R]]
   ): RpcMethod1[F, K, P, E, R] =
     RpcMethod.instance(p => f(p.head))
 
-  inline def withAuth[F[_]: Applicative, U, K <: String & Singleton, P, E, R](
+  def withAuth[F[_]: Applicative, U, K <: String & Singleton, P, E, R](
     f: (U, P) => F[Either[E, R]]
   ): RpcMethod1[[x] =>> Auth[F, U, x], K, P, E, R] =
     RpcMethod.withAuth((u, p) => f(u, p.head))
 
-  inline def withAuthIf[F[_]: Applicative, U, K <: String & Singleton, P, E, R](cond: U => Boolean)(
+  def withAuthIf[F[_]: Applicative, U, K <: String & Singleton, P, E, R](cond: U => Boolean)(
     f: (U, P) => F[Either[E, R]]
   ): RpcMethod1[[x] =>> Auth[F, U, x], K, P, E, R] =
     RpcMethod.withAuthIf(cond)((u, p) => f(u, p.head))

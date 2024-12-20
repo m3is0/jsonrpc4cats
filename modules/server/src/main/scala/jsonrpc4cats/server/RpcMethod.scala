@@ -24,7 +24,7 @@ trait RpcMethod[F[_], K <: String & Singleton, P <: Product, E, R] {
 
 object RpcMethod {
 
-  inline def instance[F[_], K <: String & Singleton, P <: Product, E, R](
+  def instance[F[_], K <: String & Singleton, P <: Product, E, R](
     f: P => F[Either[E, R]]
   ): RpcMethod[F, K, P, E, R] =
     new RpcMethod[F, K, P, E, R] {
@@ -32,12 +32,12 @@ object RpcMethod {
         f(p)
     }
 
-  inline def withAuth[F[_]: Applicative, U, K <: String & Singleton, P <: Product, E, R](
+  def withAuth[F[_]: Applicative, U, K <: String & Singleton, P <: Product, E, R](
     f: (U, P) => F[Either[E, R]]
   ): RpcMethod[[x] =>> Auth[F, U, x], K, P, E, R] =
     instance[[x] =>> Auth[F, U, x], K, P, E, R](p => Auth.allowAll[U](u => f(u, p)))
 
-  inline def withAuthIf[F[_]: Applicative, U, K <: String & Singleton, P <: Product, E, R](cond: U => Boolean)(
+  def withAuthIf[F[_]: Applicative, U, K <: String & Singleton, P <: Product, E, R](cond: U => Boolean)(
     f: (U, P) => F[Either[E, R]]
   ): RpcMethod[[x] =>> Auth[F, U, x], K, P, E, R] =
     instance[[x] =>> Auth[F, U, x], K, P, E, R](p => Auth.allowIf[U](cond)(u => f(u, p)))

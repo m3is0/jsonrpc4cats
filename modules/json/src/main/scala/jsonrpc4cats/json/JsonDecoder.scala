@@ -24,7 +24,7 @@ object JsonDecoder {
   inline def apply[J, A](using instance: JsonDecoder[J, A]): JsonDecoder[J, A] =
     instance
 
-  inline def instance[J, A](f: J => Option[A]): JsonDecoder[J, A] =
+  def instance[J, A](f: J => Option[A]): JsonDecoder[J, A] =
     new JsonDecoder[J, A] {
       def apply(j: J): Option[A] =
         f(j)

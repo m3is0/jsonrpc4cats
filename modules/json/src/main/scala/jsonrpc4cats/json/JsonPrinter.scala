@@ -24,7 +24,7 @@ object JsonPrinter {
   inline def apply[J](implicit instance: JsonPrinter[J]): JsonPrinter[J] =
     instance
 
-  inline def instance[J](f: J => String): JsonPrinter[J] =
+  def instance[J](f: J => String): JsonPrinter[J] =
     new JsonPrinter[J] {
       def apply(j: J): String =
         f(j)

@@ -50,32 +50,36 @@ object RpcServer {
       case RpcMethod[F, k, ?, ?, ?] :+: t => NoMethod[F, t, k] && DistinctMethods[F, t]
     }
 
+  private def instance[F[_], A <: Coproduct](f: String => Option[A]): RpcServer[F, A] =
+    new RpcServer[F, A] {
+      def apply(method: String) =
+        f(method)
+    }
+
   inline def add[F[_], K <: String & Singleton, P <: Product, E, R](
     m: RpcMethod[F, K, P, E, R]
   ): RpcServer[F, RpcMethod[F, K, P, E, R] :+: CNil] =
-    new RpcServer[F, RpcMethod[F, K, P, E, R] :+: CNil] {
-      def apply(method: String) =
-        if constValue[K] == method
-        then Some(Inl(m))
-        else None
+    instance[F, RpcMethod[F, K, P, E, R] :+: CNil] { method =>
+      if constValue[K] == method
+      then Some(Inl(m))
+      else None
     }
 
   extension [F[_], A <: Coproduct](sa: RpcServer[F, A]) {
-    inline def extend[B <: Coproduct](sb: RpcServer[F, B])(using
+    def extend[B <: Coproduct](sb: RpcServer[F, B])(using
       ex: ExtendBy[A, B],
       ev: DistinctMethods[F, Extend[A, B]] =:= true
     ): RpcServer[F, Extend[A, B]] =
-      new RpcServer[F, Extend[A, B]] {
-        def apply(method: String) =
-          sb(method) match {
-            case Some(vb) =>
-              Some(ex.left(vb))
-            case _ =>
-              sa(method).map(ex.right)
-          }
+      instance[F, Extend[A, B]] { method =>
+        sb(method) match {
+          case Some(vb) =>
+            Some(ex.left(vb))
+          case _ =>
+            sa(method).map(ex.right)
+        }
       }
 
-    inline def :+:[B <: Coproduct](sb: RpcServer[F, B])(using
+    def :+:[B <: Coproduct](sb: RpcServer[F, B])(using
       ex: ExtendBy[A, B],
       ev: DistinctMethods[F, Extend[A, B]] =:= true
     ): RpcServer[F, Extend[A, B]] =

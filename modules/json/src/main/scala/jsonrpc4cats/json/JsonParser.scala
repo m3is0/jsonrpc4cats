@@ -26,7 +26,7 @@ object JsonParser {
   inline def apply[J](implicit instance: JsonParser[J]): JsonParser[J] =
     instance
 
-  inline def instance[J](f: String => Option[Result[J]]): JsonParser[J] =
+  def instance[J](f: String => Option[Result[J]]): JsonParser[J] =
     new JsonParser[J] {
       def apply(s: String): Option[Result[J]] =
         f(s)

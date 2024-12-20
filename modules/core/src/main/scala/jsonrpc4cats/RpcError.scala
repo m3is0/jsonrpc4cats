@@ -82,7 +82,7 @@ object ToRpcError {
   inline def apply[J, E](using instance: ToRpcError[J, E]): ToRpcError[J, E] =
     instance
 
-  inline def instance[J, E](f: E => RpcError[RpcErrorCode, J]): ToRpcError[J, E] =
+  def instance[J, E](f: E => RpcError[RpcErrorCode, J]): ToRpcError[J, E] =
     new ToRpcError[J, E] {
       def apply(e: E): RpcError[RpcErrorCode, J] =
         f(e)
@@ -94,7 +94,7 @@ trait FromRpcError[J, E] {
 }
 
 object FromRpcError {
-  inline def instance[J, E](f: RpcError[RpcErrorCode, J] => Option[E]): FromRpcError[J, E] =
+  def instance[J, E](f: RpcError[RpcErrorCode, J] => Option[E]): FromRpcError[J, E] =
     new FromRpcError[J, E] {
       def apply(e: RpcError[RpcErrorCode, J]): Option[E] =
         f(e)
