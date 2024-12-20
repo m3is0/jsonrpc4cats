@@ -13,12 +13,12 @@ ThisBuild / tlSitePublishBranch := Some("main")
 
 ThisBuild / scalaVersion := "3.3.3"
 
-val MunitV = "1.0.2"
-val MunitCatsEffectV = "1.0.6"
+val MunitV = "1.0.3"
+val MunitCatsEffectV = "2.0.0"
 
 val CatsV = "2.12.0"
 val CirceV = "0.14.10"
-val Http4sV = "0.23.28"
+val Http4sV = "0.23.30"
 
 lazy val jsonrpc4cats = tlCrossRootProject
   .aggregate(
@@ -109,8 +109,7 @@ lazy val http4s = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.http4s" %%% "http4s-dsl" % Http4sV,
       "org.http4s" %%% "http4s-server" % Http4sV,
-      "org.scalameta" %%% "munit" % MunitV % Test,
-      "org.typelevel" %%% "munit-cats-effect-3" % MunitCatsEffectV % Test
+      "org.typelevel" %%% "munit-cats-effect" % MunitCatsEffectV % Test
     )
   )
   .dependsOn(
@@ -127,8 +126,7 @@ lazy val example = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % CatsV,
       "io.circe" %%% "circe-generic" % CirceV,
-      "org.scalameta" %%% "munit" % MunitV % Test,
-      "org.typelevel" %%% "munit-cats-effect-3" % MunitCatsEffectV % Test
+      "org.typelevel" %%% "munit-cats-effect" % MunitCatsEffectV % Test
     )
   )
   .dependsOn(
