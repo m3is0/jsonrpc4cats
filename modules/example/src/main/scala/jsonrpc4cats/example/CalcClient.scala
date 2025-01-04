@@ -66,9 +66,9 @@ object CalcClient {
     Applicative[F].pure(())
 
   def run[F[_]](using MonadError[F, Throwable]): EitherT[F, RpcCallError[Err], (Int, Int)] =
-    call((add(2, 3), mul(5, 8))).flatMap { (a, b) =>
-      call(div(b, a)).flatMap { a =>
-        liftF(printToConsole(a)) *> pure(a)
+    call[F]((add(2, 3), mul(5, 8))).flatMap { (a, b) =>
+      call[F](div(b, a)).flatMap { a =>
+        liftF(printToConsole(a)) *> pure[F](a)
       }
     }.runWith[Err](send)
 }

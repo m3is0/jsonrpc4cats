@@ -55,67 +55,84 @@ object RpcCall {
   /**
    * Lifts a value into the context of RpcCall
    */
-  def pure[F[_]: Applicative, J, A](a: A): RpcCall[F, J, A] =
-    Kleisli(_ => EitherT.pure(a))
+  def pure[F[_]]: PurePartiallyApplied[F] = new PurePartiallyApplied[F]
+
+  private[client] final class PurePartiallyApplied[F[_]](val dummy: Boolean = true) {
+    def apply[J, A](a: A)(using Applicative[F]): RpcCall[F, J, A] =
+      Kleisli(_ => EitherT.pure(a))
+  }
 
   /**
    * Lifts 'F[A]' into the context of RpcCall
    */
-  def liftF[F[_]: Functor, J, A](fa: F[A]): RpcCall[F, J, A] =
-    Kleisli(_ => EitherT.liftF(fa))
+  def liftF[F[_]]: LiftFPartiallyApplied[F] = new LiftFPartiallyApplied[F]
+
+  private[client] final class LiftFPartiallyApplied[F[_]](val dummy: Boolean = true) {
+    def apply[J, A](fa: F[A])(using Functor[F]): RpcCall[F, J, A] =
+      Kleisli(_ => EitherT.liftF(fa))
+  }
 
   /**
-   * Performs a call with a single request
+   * Performs a call
    */
-  def call[F[_], J, P, R](r: RpcRequest[P, R])(using
-    ApplicativeError[F, Throwable],
-    RequestEncoder[J],
-    JsonParser[J],
-    ResponseDecoder[J],
-    RequestGenerator[J, Tuple1[RpcRequest[P, R]]],
-    ResponseHandler[J, RequestGenerator.Signature[Tuple1[RpcRequest[P, R]]]]
-  ): RpcCall[F, J, R] =
-    call(Tuple1(r)).map(_._1)
+  def call[F[_]]: CallPartiallyApplied[F] = new CallPartiallyApplied[F]
 
-  /**
-   * Performs a call with a single notification
-   */
-  def call[F[_], J, P](r: RpcNotification[P])(using
-    ApplicativeError[F, Throwable],
-    RequestEncoder[J],
-    JsonParser[J],
-    ResponseDecoder[J],
-    RequestGenerator[J, Tuple1[RpcNotification[P]]],
-    ResponseHandler[J, RequestGenerator.Signature[Tuple1[RpcNotification[P]]]]
-  ): RpcCall[F, J, Unit] =
-    call(Tuple1(r)).map(_ => ())
+  private[client] final class CallPartiallyApplied[F[_]](val dummy: Boolean = true) {
 
-  /**
-   * Performs a call with a request represented as a tuple
-   *
-   * @param t A tuple of RpcRequest or RpcNotification objects
-   * @result A tuple with results for all RpcRequest objects, skipping RpcNotification's
-   */
-  def call[F[_], J, T <: NonEmptyTuple](t: T)(using
-    ApplicativeError[F, Throwable],
-    RequestEncoder[J],
-    JsonParser[J],
-    ResponseDecoder[J]
-  )(using
-    generateRequest: RequestGenerator[J, T],
-    handleResponse: ResponseHandler[J, RequestGenerator.Signature[T]]
-  ): RpcCall[F, J, ResponseHandler.OutR[J, RequestGenerator.Signature[T]]] = {
-    val (sig, req) = generateRequest(t)
-    callU[F, J](req)
-      .map(res => handleResponse(sig, res))
-      .mapF(_.transform {
-        case Right(Right(res)) =>
-          Right(res)
-        case Right(Left(err)) =>
-          Left(ResponseErrors(err))
-        case Left(err) =>
-          Left(err)
-      })
+    /**
+     * Performs a call with a single request
+     */
+    def apply[J, P, R](r: RpcRequest[P, R])(using
+      ApplicativeError[F, Throwable],
+      RequestEncoder[J],
+      JsonParser[J],
+      ResponseDecoder[J],
+      RequestGenerator[J, Tuple1[RpcRequest[P, R]]],
+      ResponseHandler[J, RequestGenerator.Signature[Tuple1[RpcRequest[P, R]]]]
+    ): RpcCall[F, J, R] =
+      apply(Tuple1(r)).map(_._1)
+
+    /**
+     * Performs a call with a single notification
+     */
+    def apply[J, P](r: RpcNotification[P])(using
+      ApplicativeError[F, Throwable],
+      RequestEncoder[J],
+      JsonParser[J],
+      ResponseDecoder[J],
+      RequestGenerator[J, Tuple1[RpcNotification[P]]],
+      ResponseHandler[J, RequestGenerator.Signature[Tuple1[RpcNotification[P]]]]
+    ): RpcCall[F, J, Unit] =
+      apply(Tuple1(r)).map(_ => ())
+
+    /**
+     * Performs a call with a request represented as a tuple
+     *
+     * @param t A tuple of RpcRequest or RpcNotification objects
+     * @result A tuple with results for all RpcRequest objects, skipping RpcNotification's
+     */
+    def apply[J, T <: NonEmptyTuple](t: T)(using
+      ApplicativeError[F, Throwable],
+      RequestEncoder[J],
+      JsonParser[J],
+      ResponseDecoder[J]
+    )(using
+      generateRequest: RequestGenerator[J, T],
+      handleResponse: ResponseHandler[J, RequestGenerator.Signature[T]]
+    ): RpcCall[F, J, ResponseHandler.OutR[J, RequestGenerator.Signature[T]]] = {
+      val (sig, req) = generateRequest(t)
+      callU[F, J](req)
+        .map(res => handleResponse(sig, res))
+        .mapF(_.transform {
+          case Right(Right(res)) =>
+            Right(res)
+          case Right(Left(err)) =>
+            Left(ResponseErrors(err))
+          case Left(err) =>
+            Left(err)
+        })
+    }
+
   }
 
   /**
