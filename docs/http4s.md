@@ -97,9 +97,9 @@ object Http4sApp {
 
 ## Response Codes
 
-- '405 Method Not Allowed' if the request method is not 'POST'
-- '415 Unsupported Media Type' if the 'Content-Type' is not 'application/json'
-- '401 Unauthorized' if the action is not authorized (controlled by the application)
+- '405 Method Not Allowed' if a request method is not 'POST'
+- '415 Unsupported Media Type' if the 'Content-Type' header is not 'application/json'
+- '401 Unauthorized' if an action is not authorized (controlled by the application)
 - '202 Accepted' for empty responses, when all request objects are JSON-RPC notifications
 - '200 OK' for all JSON-RPC responses, including errors
 
