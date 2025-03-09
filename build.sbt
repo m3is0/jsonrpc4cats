@@ -11,12 +11,12 @@ ThisBuild / tlCiDependencyGraphJob := false
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("21"))
 ThisBuild / tlSitePublishBranch := Some("main")
 
-ThisBuild / scalaVersion := "3.3.4"
+ThisBuild / scalaVersion := "3.3.5"
 
-val MunitV = "1.0.3"
+val MunitV = "1.1.0"
 val MunitCatsEffectV = "2.0.0"
 
-val CatsV = "2.12.0"
+val CatsV = "2.13.0"
 val CirceV = "0.14.10"
 val Http4sV = "0.23.30"
 
